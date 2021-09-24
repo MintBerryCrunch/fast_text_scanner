@@ -13,4 +13,5 @@ export 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_pla
         Resolution,
         DetectionMode,
         CameraPosition,
+        ImageInversion,
         PreviewConfiguration;

@@ -1,3 +1,7 @@
+## 2.0.1
+
+* ImageInversion argument of init and config methods added.
+
 ## 2.0.0-dev.2
 
 - Refactoring

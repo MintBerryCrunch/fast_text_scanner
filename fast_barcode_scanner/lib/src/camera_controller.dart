@@ -50,6 +50,7 @@ abstract class CameraController {
     Framerate framerate,
     CameraPosition position,
     DetectionMode detectionMode,
+    ImageInversion imageInversion,
     void Function(Barcode)? onScan,
   );
 
@@ -92,6 +93,7 @@ abstract class CameraController {
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ImageInversion? imageInversion,
     void Function(Barcode)? onScan,
   });
 
@@ -133,11 +135,12 @@ class _CameraController implements CameraController {
     Framerate framerate,
     CameraPosition position,
     DetectionMode detectionMode,
+    ImageInversion imageInversion,
     void Function(Barcode)? onScan,
   ) async {
     try {
       state._previewConfig = await _platform.init(
-          types, resolution, framerate, detectionMode, position);
+          types, resolution, framerate, detectionMode, position, imageInversion);
 
       _onScan = onScan;
 
@@ -244,6 +247,7 @@ class _CameraController implements CameraController {
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ImageInversion? imageInversion,
     void Function(Barcode)? onScan,
   }) async {
     if (state.isInitialized && !_configuring) {
@@ -257,6 +261,7 @@ class _CameraController implements CameraController {
           framerate: framerate,
           detectionMode: detectionMode,
           position: position,
+          imageInversion: imageInversion,
         );
 
         state._scannerConfig = _scannerConfig.copyWith(

@@ -34,6 +34,7 @@ class BarcodeCamera extends StatefulWidget {
     this.resolution = Resolution.hd720,
     this.framerate = Framerate.fps30,
     this.position = CameraPosition.back,
+    this.imageInversion = ImageInversion.none,
     this.onScan,
     this.children = const [],
     this.dispose = true,
@@ -46,6 +47,7 @@ class BarcodeCamera extends StatefulWidget {
   final Framerate framerate;
   final DetectionMode mode;
   final CameraPosition position;
+  final ImageInversion imageInversion;
   final void Function(Barcode)? onScan;
   final List<Widget> children;
   final ErrorCallback onError;
@@ -71,9 +73,10 @@ class BarcodeCameraState extends State<BarcodeCamera> {
             resolution: widget.resolution,
             framerate: widget.framerate,
             position: widget.position,
+            imageInversion: widget.imageInversion,
             onScan: widget.onScan)
         : cameraController.initialize(widget.types, widget.resolution,
-            widget.framerate, widget.position, widget.mode, widget.onScan);
+            widget.framerate, widget.position, widget.mode, widget.imageInversion, widget.onScan);
 
     configurationFuture
         .whenComplete(() => setState(() => _opacity = 1.0))

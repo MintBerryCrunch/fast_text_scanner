@@ -48,7 +48,8 @@ void main() {
           'mode': 'pauseDetection',
           'res': 'hd1080',
           'fps': 'fps60',
-          'pos': 'back'
+          'pos': 'back',
+          'inv': 'none',
         }),
       ]);
 

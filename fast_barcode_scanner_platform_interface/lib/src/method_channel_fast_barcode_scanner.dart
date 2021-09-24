@@ -25,13 +25,15 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
       Resolution resolution,
       Framerate framerate,
       DetectionMode detectionMode,
-      CameraPosition position) async {
+      CameraPosition position,
+      [ImageInversion imageInversion = ImageInversion.none]) async {
     final response = await _channel.invokeMethod('init', {
       'types': types.map((e) => e.name).toList(growable: false),
       'mode': detectionMode.name,
       'res': resolution.name,
       'fps': framerate.name,
-      'pos': position.name
+      'pos': position.name,
+      'inv': imageInversion.name,
     });
     return PreviewConfiguration(response);
   }
@@ -74,6 +76,7 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ImageInversion? imageInversion,
   }) async {
     final response = await _channel.invokeMethod('config', {
       if (types != null) 'types': types.map((e) => e.name).toList(),
@@ -81,6 +84,7 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
       if (resolution != null) 'res': resolution.name,
       if (framerate != null) 'fps': framerate.name,
       if (position != null) 'pos': position.name,
+      if (imageInversion != null) 'inv': imageInversion.name,
     });
     return PreviewConfiguration(response);
   }

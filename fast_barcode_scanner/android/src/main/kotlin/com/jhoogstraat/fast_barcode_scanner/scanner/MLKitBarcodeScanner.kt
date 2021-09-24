@@ -12,21 +12,26 @@ import com.google.mlkit.vision.common.InputImage
 
 class MLKitBarcodeScanner(
     options: BarcodeScannerOptions,
+    imageInversion: ImageInversion,
     private val successListener: OnSuccessListener<List<Barcode>>,
     private val failureListener: OnFailureListener
 ) : ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient(options)
+    private val invertor = ImageInvertor(imageInversion)
 
     @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
-        scanner.process(
-            InputImage.fromMediaImage(
-                imageProxy.image!!,
-                imageProxy.imageInfo.rotationDegrees
-            )
-        )
-            .addOnSuccessListener(successListener)
-            .addOnFailureListener(failureListener)
-            .addOnCompleteListener { imageProxy.close() }
+        val inputImage = preprocessImage(imageProxy)
+        scanner.process(inputImage)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener)
+                .addOnCompleteListener { imageProxy.close() }
+    }
+
+    @ExperimentalGetImage
+    private fun preprocessImage(imageProxy: ImageProxy): InputImage {
+        val originalImage = imageProxy.image!!
+        invertor.invertImageIfNeeded(originalImage)
+        return InputImage.fromMediaImage(originalImage, imageProxy.imageInfo.rotationDegrees)
     }
 }

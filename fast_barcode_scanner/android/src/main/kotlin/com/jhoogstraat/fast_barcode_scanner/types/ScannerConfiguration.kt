@@ -3,7 +3,8 @@ package com.jhoogstraat.fast_barcode_scanner.types
 import android.util.Size
 import com.google.mlkit.vision.barcode.Barcode
 
-data class ScannerConfiguration(val formats: IntArray, val mode: DetectionMode, val resolution: Resolution, val framerate: Framerate, val position: CameraPosition)
+data class ScannerConfiguration(val formats: IntArray, val mode: DetectionMode, val resolution: Resolution,
+                                val framerate: Framerate, val position: CameraPosition, inversion: ImageInversion)
 
 enum class Framerate {
     fps30, fps60, fps120, fps240;
@@ -45,6 +46,10 @@ enum class DetectionMode {
 
 enum class CameraPosition {
     front, back;
+}
+
+enum class ImageInversion {
+    none, invertAllFrames, alternateFrameInversion;
 }
 
 val barcodeFormatMap = hashMapOf(

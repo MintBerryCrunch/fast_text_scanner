@@ -72,7 +72,8 @@ class Camera(
                 DetectionMode.valueOf(args["mode"] as String),
                 Resolution.valueOf(args["res"] as String),
                 Framerate.valueOf(args["fps"] as String),
-                CameraPosition.valueOf(args["pos"] as String)
+                CameraPosition.valueOf(args["pos"] as String),
+                ImageInversion.valueOf(args["inv"] as String),
             )
 
             // Report to the user if any types are not supported
@@ -272,13 +273,16 @@ class Camera(
                 if (args.containsKey("fps")) Framerate.valueOf(args["fps"] as String) else scannerConfiguration.framerate
             val position =
                 if (args.containsKey("pos")) CameraPosition.valueOf(args["pos"] as String) else scannerConfiguration.position
+            val inversion =
+                if (args.containsKey("inv")) ImageInversion.valueOf(args["inv"] as String) else scannerConfiguration.inversion
 
             scannerConfiguration = scannerConfiguration.copy(
                 formats = formats,
                 mode = detectionMode,
                 resolution = resolution,
                 framerate = framerate,
-                position = position
+                position = position,
+                inversion = inversion
             )
         } catch (e: ScannerException) {
             throw e
