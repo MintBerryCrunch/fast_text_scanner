@@ -4,7 +4,7 @@ import android.util.Size
 import com.google.mlkit.vision.barcode.Barcode
 
 data class ScannerConfiguration(val formats: IntArray, val mode: DetectionMode, val resolution: Resolution,
-                                val framerate: Framerate, val position: CameraPosition, inversion: ImageInversion)
+                                val framerate: Framerate, val position: CameraPosition, val inversion: ImageInversion)
 
 enum class Framerate {
     fps30, fps60, fps120, fps240;

@@ -9,6 +9,8 @@ import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import com.jhoogstraat.fast_barcode_scanner.ImageInvertor
+import com.jhoogstraat.fast_barcode_scanner.types.ImageInversion
 
 class MLKitBarcodeScanner(
     options: BarcodeScannerOptions,

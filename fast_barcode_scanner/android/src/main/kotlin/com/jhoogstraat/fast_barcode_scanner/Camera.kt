@@ -90,7 +90,7 @@ class Camera(
             .setBarcodeFormats(0, *scannerConfiguration.formats)
             .build()
 
-        barcodeScanner = MLKitBarcodeScanner(options, { codes ->
+        barcodeScanner = MLKitBarcodeScanner(options, scannerConfiguration.inversion, { codes ->
             if (codes.isNotEmpty()) {
                 if (scannerConfiguration.mode == DetectionMode.pauseDetection) {
                     stopDetector()

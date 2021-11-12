@@ -63,10 +63,8 @@ class _ScanningScreenState extends State<ScanningScreen> {
       ),
       body: BarcodeCamera(
         types: const [
-          BarcodeType.ean8,
-          BarcodeType.ean13,
+          BarcodeType.dataMatrix,
           BarcodeType.code128,
-          BarcodeType.qr
         ],
         resolution: Resolution.hd720,
         framerate: Framerate.fps30,

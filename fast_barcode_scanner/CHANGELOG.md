@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Image inversion supported for android
+
 ## 2.0.0-dev.2
 
 - Analyze still images from binary or native image pickers on iOS and Android

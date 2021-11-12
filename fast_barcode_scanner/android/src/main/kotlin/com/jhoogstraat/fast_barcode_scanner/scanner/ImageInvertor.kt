@@ -2,6 +2,7 @@ package com.jhoogstraat.fast_barcode_scanner
 
 import android.graphics.ImageFormat
 import android.media.Image
+import com.jhoogstraat.fast_barcode_scanner.types.ImageInversion
 import java.nio.ByteBuffer
 import kotlin.experimental.inv
 
