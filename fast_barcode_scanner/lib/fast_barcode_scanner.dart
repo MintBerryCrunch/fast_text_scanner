@@ -6,7 +6,7 @@ export 'package:fast_barcode_scanner/src/overlays/blur_overlay.dart';
 export 'package:fast_barcode_scanner/src/overlays/material_finder_overlay/material_finder_overlay.dart';
 export 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart'
     show
-        Barcode,
+        ScanResult,
         BarcodeType,
         ImageSource,
         Framerate,

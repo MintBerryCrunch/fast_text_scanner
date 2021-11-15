@@ -7,12 +7,14 @@ struct ScannerConfiguration {
          framerate: Framerate,
          resolution: Resolution,
          mode: DetectionMode,
-         codes: [String]) {
+         codes: [String],
+         scanMode: ScanMode) {
         self.position = position
         self.framerate = framerate
         self.resolution = resolution
         self.detectionMode = mode
         self.codes = codes
+        self.scanMode = scanMode
     }
 
     init?(_ args: Any?) {
@@ -22,7 +24,8 @@ struct ScannerConfiguration {
             let resolution = Resolution(rawValue: dict["res"] as? String ?? ""),
             let framerate = Framerate(rawValue: dict["fps"] as? String ?? ""),
             let detectionMode = DetectionMode(rawValue: dict["mode"] as? String ?? ""),
-            let codes = dict["types"] as? [String]
+            let codes = dict["types"] as? [String],
+            let scanMode = ScanMode(rawValue: dict["scanMode"] as? String ?? "")
             else {
                 return nil
         }
@@ -31,7 +34,8 @@ struct ScannerConfiguration {
                   framerate: framerate,
                   resolution: resolution,
                   mode: detectionMode,
-                  codes: codes
+                  codes: codes,
+                  scanMode: scanMode
         )
     }
 
@@ -40,6 +44,7 @@ struct ScannerConfiguration {
     let resolution: Resolution
     let detectionMode: DetectionMode
     let codes: [String]
+    let scanMode: ScanMode
 
     func copy(with args: Any?) -> ScannerConfiguration? {
         guard let dict = args as? [String: Any] else { return nil }
@@ -49,7 +54,8 @@ struct ScannerConfiguration {
             framerate: Framerate(rawValue: dict["fps"] as? String ?? "") ?? framerate,
             resolution: Resolution(rawValue: dict["res"] as? String ?? "") ?? resolution,
             mode: DetectionMode(rawValue: dict["mode"] as? String ?? "") ?? detectionMode,
-            codes: dict["types"] as? [String] ?? codes
+            codes: dict["types"] as? [String] ?? codes,
+            scanMode: ScanMode(rawValue: dict["scanMode"] as? String ?? "") ?? scanMode
         )
     }
 }
@@ -140,4 +146,8 @@ enum Framerate: String {
 
 enum DetectionMode: String {
     case pauseDetection, pauseVideo, continuous
+}
+
+enum ScanMode: String {
+    case barcode, textRecognition
 }

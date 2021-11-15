@@ -1,6 +1,6 @@
 import AVFoundation
 
-class AVFoundationBarcodeScanner: NSObject, BarcodeScanner, AVCaptureMetadataOutputObjectsDelegate {
+class AVFoundationBarcodeScanner: NSObject, ScannerProtocol, AVCaptureMetadataOutputObjectsDelegate {
     typealias Barcode = AVMetadataMachineReadableCodeObject
 
     init(resultHandler: @escaping ResultHandler) {

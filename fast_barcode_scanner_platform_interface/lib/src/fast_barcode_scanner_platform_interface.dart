@@ -35,12 +35,14 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
   /// Initializes and starts the native camera interface.
   /// Returns a [PreviewConfiguration] the camera is setup with.
   Future<PreviewConfiguration> init(
-      List<BarcodeType> types,
-      Resolution resolution,
-      Framerate framerate,
-      DetectionMode detectionMode,
-      CameraPosition position,
-      [ImageInversion imageInversion = ImageInversion.none]) {
+    List<BarcodeType> types,
+    Resolution resolution,
+    Framerate framerate,
+    DetectionMode detectionMode,
+    CameraPosition position, [
+    ImageInversion imageInversion = ImageInversion.none,
+    ScanMode scanMode = ScanMode.barcode,
+  ]) {
     throw UnimplementedError('init() has not been implemented');
   }
 
@@ -74,6 +76,11 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
     throw UnimplementedError('toggleTorch() has not been implemented');
   }
 
+  /// Toggles the torch, if available.
+  Future<bool> setTorch(bool on) {
+    throw UnimplementedError('setTorch() has not been implemented');
+  }
+
   /// Changes the supplied camera settings.
   /// Nil values are ignored and stay unchanged.
   Future<PreviewConfiguration> changeConfiguration({
@@ -83,16 +90,17 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
     DetectionMode? detectionMode,
     CameraPosition? position,
     ImageInversion? imageInversion,
+    ScanMode? scanMode,
   }) {
     throw UnimplementedError('changeConfiguration() has not been implemented');
   }
 
   /// Set the method to be called when a barcode is detected
-  void setOnDetectHandler(void Function(Barcode) handler) {
+  void setOnDetectHandler(void Function(ScanResult) handler) {
     throw UnimplementedError('setOnDetectHandler() has not been implemented');
   }
 
-  Future<List<Barcode>?> scanImage(ImageSource source) {
+  Future<List<ScanResult>?> scanImage(ImageSource source) {
     throw UnimplementedError('scanImage() has not been implemented');
   }
 }

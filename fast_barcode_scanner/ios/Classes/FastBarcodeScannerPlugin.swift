@@ -46,6 +46,7 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             case "startDetector": try startDetector()
             case "stopDetector": try stopDetector()
             case "torch": response = try toggleTorch()
+            case "setTorch" : response = try setTorch(args: call.arguments)
             case "config": response = try updateConfiguration(call: call).asDict
             case "scan": try analyzeImage(args: call.arguments, on: result); return
             case "dispose": dispose()
@@ -68,8 +69,17 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             throw ScannerError.invalidArguments(args)
         }
 
-        let scanner = AVFoundationBarcodeScanner { [unowned self] barcode in
-            self.detectionsSink?(barcode)
+
+        var scanner: ScannerProtocol {
+            if configuration.scanMode == .barcode {
+                return AVFoundationBarcodeScanner { [unowned self] barcode in
+                                self.detectionsSink?(barcode)
+                }
+            } else {
+                return MLKitOCRScanner { [unowned self] text in
+                    self.detectionsSink?(text)
+                }
+            }
         }
 
         let camera = try Camera(configuration: configuration, scanner: scanner)
@@ -114,6 +124,15 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
         return try camera.toggleTorch()
 	}
 
+    func setTorch(args: Any?) throws -> Bool {
+        guard let camera = camera else { throw ScannerError.notInitialized }
+        if let container = args as? NSNumber {
+            let isOn = container.boolValue
+            return try camera.setTorch(on: isOn)
+        }
+        return false
+    }
+
     func updateConfiguration(call: FlutterMethodCall) throws -> PreviewConfiguration {
         guard let camera = camera else {
             throw ScannerError.notInitialized
@@ -133,7 +152,7 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             throw ScannerError.minimumTarget
         }
 
-        let visionResultHandler: BarcodeScanner.ResultHandler = { result in
+        let visionResultHandler: ScannerProtocol.ResultHandler = { result in
             resultHandler(result)
         }
 
@@ -150,7 +169,6 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             scanner.process(cgImage)
         } else {
             guard
-//                picker == nil,
                 let root = UIApplication.shared.delegate?.window??.rootViewController
             else {
                 return resultHandler(nil)

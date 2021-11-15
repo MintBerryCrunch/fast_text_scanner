@@ -8,14 +8,14 @@ class Camera: NSObject {
     private let sessionQueue = DispatchQueue(label: "fast_barcode_scanner.session.serial")
     private var deviceInput: AVCaptureDeviceInput!
     private var captureDevice: AVCaptureDevice { deviceInput.device }
-    private var scanner: BarcodeScanner
+    private var scanner: ScannerProtocol
 
     private(set) var configuration: ScannerConfiguration
     private(set) var previewConfiguration: PreviewConfiguration!
     private var torchState = false
     private var isSessionRunning = false
 
-    init(configuration: ScannerConfiguration, scanner: BarcodeScanner) throws {
+    init(configuration: ScannerConfiguration, scanner: ScannerProtocol) throws {
         self.scanner = scanner
         self.configuration = configuration
         super.init()
@@ -150,6 +150,17 @@ class Camera: NSObject {
 
         try captureDevice.lockForConfiguration()
         captureDevice.torchMode = captureDevice.isTorchActive ? .off : .on
+        captureDevice.unlockForConfiguration()
+
+        return captureDevice.torchMode == .on
+    }
+
+    @discardableResult
+    func setTorch(on: Bool) throws -> Bool {
+        guard captureDevice.isTorchAvailable else { return false }
+
+        try captureDevice.lockForConfiguration()
+        captureDevice.torchMode = on ? .on : .off
         captureDevice.unlockForConfiguration()
 
         return captureDevice.torchMode == .on

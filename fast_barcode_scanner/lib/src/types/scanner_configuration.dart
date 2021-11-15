@@ -10,6 +10,7 @@ class ScannerConfiguration {
     this.framerate,
     this.position,
     this.detectionMode,
+    this.scanMode,
   );
 
   /// The types the scanner should look out for.
@@ -35,12 +36,15 @@ class ScannerConfiguration {
   /// Determines how the camera reacts to detected barcodes.
   final DetectionMode detectionMode;
 
+  final ScanMode scanMode;
+
   ScannerConfiguration copyWith({
     List<BarcodeType>? types,
     Resolution? resolution,
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ScanMode? scanMode,
   }) {
     return ScannerConfiguration(
       types ?? this.types,
@@ -48,6 +52,7 @@ class ScannerConfiguration {
       framerate ?? this.framerate,
       position ?? this.position,
       detectionMode ?? this.detectionMode,
+      scanMode ?? this.scanMode,
     );
   }
 }
