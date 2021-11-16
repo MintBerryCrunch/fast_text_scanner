@@ -51,7 +51,8 @@ abstract class CameraController {
     CameraPosition position,
     DetectionMode detectionMode,
     ImageInversion imageInversion,
-    void Function(Barcode)? onScan,
+    void Function(ScanResult)? onScan,
+    ScanMode scanMode,
   );
 
   /// Stops the camera and disposes all associated resources.
@@ -84,6 +85,11 @@ abstract class CameraController {
   ///
   Future<bool> toggleTorch();
 
+  /// Set the torch state, if available.
+  ///
+  ///
+  Future<bool> setTorch(bool on);
+
   /// Reconfigure the scanner.
   ///
   /// Can be called while running.
@@ -94,13 +100,14 @@ abstract class CameraController {
     DetectionMode? detectionMode,
     CameraPosition? position,
     ImageInversion? imageInversion,
-    void Function(Barcode)? onScan,
+    void Function(ScanResult)? onScan,
+    ScanMode? scanMode,
   });
 
   /// Analyze a still image, which can be chosen from an image picker.
   ///
   /// It is recommended to pause the live scanner before calling this.
-  Future<List<Barcode>?> scanImage(ImageSource source);
+  Future<List<ScanResult>?> scanImage(ImageSource source);
 }
 
 class _CameraController implements CameraController {
@@ -126,7 +133,7 @@ class _CameraController implements CameraController {
   bool _configuring = false;
 
   /// User-defined handler, called when a barcode is detected
-  void Function(Barcode)? _onScan;
+  void Function(ScanResult)? _onScan;
 
   @override
   Future<void> initialize(
@@ -136,18 +143,19 @@ class _CameraController implements CameraController {
     CameraPosition position,
     DetectionMode detectionMode,
     ImageInversion imageInversion,
-    void Function(Barcode)? onScan,
+    void Function(ScanResult)? onScan,
+    ScanMode scanMode,
   ) async {
     try {
-      state._previewConfig = await _platform.init(
-          types, resolution, framerate, detectionMode, position, imageInversion);
+      state._previewConfig = await _platform.init(types, resolution, framerate,
+          detectionMode, position, imageInversion, scanMode);
 
       _onScan = onScan;
 
       _platform.setOnDetectHandler(_onDetectHandler);
 
       state._scannerConfig = ScannerConfiguration(
-          types, resolution, framerate, position, detectionMode);
+          types, resolution, framerate, position, detectionMode, scanMode);
 
       state._error = null;
 
@@ -248,7 +256,8 @@ class _CameraController implements CameraController {
     DetectionMode? detectionMode,
     CameraPosition? position,
     ImageInversion? imageInversion,
-    void Function(Barcode)? onScan,
+    void Function(ScanResult)? onScan,
+    ScanMode? scanMode,
   }) async {
     if (state.isInitialized && !_configuring) {
       final _scannerConfig = state._scannerConfig!;
@@ -262,6 +271,7 @@ class _CameraController implements CameraController {
           detectionMode: detectionMode,
           position: position,
           imageInversion: imageInversion,
+          scanMode: scanMode,
         );
 
         state._scannerConfig = _scannerConfig.copyWith(
@@ -270,6 +280,7 @@ class _CameraController implements CameraController {
           framerate: framerate,
           detectionMode: detectionMode,
           position: position,
+          scanMode: scanMode,
         );
 
         if (onScan != null) {
@@ -286,7 +297,7 @@ class _CameraController implements CameraController {
   }
 
   @override
-  Future<List<Barcode>?> scanImage(ImageSource source) async {
+  Future<List<ScanResult>?> scanImage(ImageSource source) async {
     try {
       return _platform.scanImage(source);
     } catch (error) {
@@ -296,8 +307,26 @@ class _CameraController implements CameraController {
     }
   }
 
-  void _onDetectHandler(Barcode code) {
+  void _onDetectHandler(ScanResult code) {
     events.value = ScannerEvent.detected;
     _onScan?.call(code);
+  }
+
+  @override
+  Future<bool> setTorch(bool on) async {
+    if (!_togglingTorch) {
+      _togglingTorch = true;
+      try {
+        state._torch = await _platform.setTorch(on);
+      } catch (error) {
+        state._error = error;
+        events.value = ScannerEvent.error;
+        rethrow;
+      }
+
+      _togglingTorch = false;
+    }
+
+    return state._torch;
   }
 }

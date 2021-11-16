@@ -71,7 +71,9 @@ class _ScanningScreenState extends State<ScanningScreen> {
         mode: DetectionMode.pauseVideo,
         position: CameraPosition.back,
         imageInversion: ImageInversion.alternateFrameInversion,
-        onScan: (code) => history.add(code),
+        onScan: (code) {
+          history.add(code);
+        },
         children: const [
           MaterialPreviewOverlay(),
           // BlurPreviewOverlay()
@@ -139,13 +141,23 @@ class _ScanningScreenState extends State<ScanningScreen> {
                         valueListenable: _torchIconState,
                         builder: (context, isTorchActive, _) => ElevatedButton(
                           onPressed: () {
-                            cam
-                                .toggleTorch()
-                                .then((torchState) =>
-                                    _torchIconState.value = torchState)
-                                .catchError((error, stackTrace) {
-                              presentErrorAlert(context, error, stackTrace);
-                            });
+                            isTorchActive
+                                ? cam
+                                    .setTorch(false)
+                                    .then((torchState) =>
+                                        _torchIconState.value = torchState)
+                                    .catchError((error, stackTrace) {
+                                    presentErrorAlert(
+                                        context, error, stackTrace);
+                                  })
+                                : cam
+                                    .setTorch(true)
+                                    .then((torchState) =>
+                                        _torchIconState.value = torchState)
+                                    .catchError((error, stackTrace) {
+                                    presentErrorAlert(
+                                        context, error, stackTrace);
+                                  });
                           },
                           child: Text('Torch: ${isTorchActive ? 'on' : 'off'}'),
                         ),

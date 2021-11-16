@@ -1,6 +1,6 @@
 import AVFoundation
 
-protocol BarcodeScanner {
+protocol ScannerProtocol {
     typealias ResultHandler = (Any?) -> Void
 
     var session: AVCaptureSession? { get set }

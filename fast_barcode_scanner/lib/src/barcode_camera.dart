@@ -38,6 +38,7 @@ class BarcodeCamera extends StatefulWidget {
     this.onScan,
     this.children = const [],
     this.dispose = true,
+    this.scanMode = ScanMode.barcode,
     ErrorCallback? onError,
   })  : onError = onError ?? _defaultOnError,
         super(key: key);
@@ -48,10 +49,11 @@ class BarcodeCamera extends StatefulWidget {
   final DetectionMode mode;
   final CameraPosition position;
   final ImageInversion imageInversion;
-  final void Function(Barcode)? onScan;
+  final void Function(ScanResult)? onScan;
   final List<Widget> children;
   final ErrorCallback onError;
   final bool dispose;
+  final ScanMode scanMode;
 
   @override
   BarcodeCameraState createState() => BarcodeCameraState();
@@ -74,9 +76,19 @@ class BarcodeCameraState extends State<BarcodeCamera> {
             framerate: widget.framerate,
             position: widget.position,
             imageInversion: widget.imageInversion,
-            onScan: widget.onScan)
-        : cameraController.initialize(widget.types, widget.resolution,
-            widget.framerate, widget.position, widget.mode, widget.imageInversion, widget.onScan);
+            onScan: widget.onScan,
+            scanMode: widget.scanMode,
+          )
+        : cameraController.initialize(
+            widget.types,
+            widget.resolution,
+            widget.framerate,
+            widget.position,
+            widget.mode,
+            widget.imageInversion,
+            widget.onScan,
+            widget.scanMode,
+          );
 
     configurationFuture
         .whenComplete(() => setState(() => _opacity = 1.0))

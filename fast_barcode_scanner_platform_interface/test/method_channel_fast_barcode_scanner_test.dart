@@ -137,7 +137,7 @@ void main() {
 
     test('Should not call handler with invalid barcode', () async {
       // Arrange
-      Barcode? actualBarcode;
+      ScanResult? actualBarcode;
       scanner.setOnDetectHandler((code) => actualBarcode = code);
 
       // Act
@@ -248,7 +248,7 @@ void main() {
 
       expect(mockChannel.log, [isMethodCall('scan', arguments: null)]);
       expect(actualBarcode, [
-        Barcode(["ean13", "1234"])
+        ScanResult(["ean13", "1234"])
       ]);
     });
 

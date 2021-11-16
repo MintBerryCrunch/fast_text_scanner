@@ -2,7 +2,7 @@ import AVFoundation
 import Vision
 
 @available(iOS 11.0, *)
-class VisionBarcodeScanner: NSObject, BarcodeScanner, AVCaptureVideoDataOutputSampleBufferDelegate {
+class VisionBarcodeScanner: NSObject, ScannerProtocol, AVCaptureVideoDataOutputSampleBufferDelegate {
     typealias Barcode = VNBarcodeObservation
 
     var resultHandler: ResultHandler
@@ -105,7 +105,9 @@ class VisionBarcodeScanner: NSObject, BarcodeScanner, AVCaptureVideoDataOutputSa
         let barcodes: [Any] = results.filter { $0.confidence > 0.8 }.map {
             return [flutterVNSymbols[$0.symbology]!, $0.payloadStringValue ?? ""]
         }
-
+        if barcodes.isEmpty {
+            return
+        }
         onDetection?()
         resultHandler(barcodes)
     }

@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import '../../fast_barcode_scanner_platform_interface.dart';
 
 /// Describes a Barcode with type and value.
-/// [Barcode] is value-equatable.
-class Barcode {
-  /// Creates a [Barcode] from a Flutter Message Protocol
-  Barcode(List<dynamic> data)
+/// [ScanResult] is value-equatable.
+class ScanResult {
+  /// Creates a [ScanResult] from a Flutter Message Protocol
+  ScanResult(List<dynamic> data)
       : type = BarcodeType.values.firstWhere((e) => describeEnum(e) == data[0]),
         value = data[1],
         valueType = data.length > 2 ? BarcodeValueType.values[data[2]] : null;
@@ -30,7 +30,7 @@ class Barcode {
 
   @override
   bool operator ==(Object other) =>
-      other is Barcode &&
+      other is ScanResult &&
       other.type == type &&
       other.value == value &&
       other.valueType == valueType;
