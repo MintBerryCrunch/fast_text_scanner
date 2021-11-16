@@ -1,8 +1,9 @@
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../scan_history.dart';
+
 import '../configure_screen/configure_screen.dart';
+import '../scan_history.dart';
 import '../utils.dart';
 import 'scans_counter.dart';
 
@@ -141,23 +142,13 @@ class _ScanningScreenState extends State<ScanningScreen> {
                         valueListenable: _torchIconState,
                         builder: (context, isTorchActive, _) => ElevatedButton(
                           onPressed: () {
-                            isTorchActive
-                                ? cam
-                                    .setTorch(false)
-                                    .then((torchState) =>
-                                        _torchIconState.value = torchState)
-                                    .catchError((error, stackTrace) {
-                                    presentErrorAlert(
-                                        context, error, stackTrace);
-                                  })
-                                : cam
-                                    .setTorch(true)
-                                    .then((torchState) =>
-                                        _torchIconState.value = torchState)
-                                    .catchError((error, stackTrace) {
-                                    presentErrorAlert(
-                                        context, error, stackTrace);
-                                  });
+                            cam
+                                .setTorch(!isTorchActive)
+                                .then((torchState) =>
+                                    _torchIconState.value = torchState)
+                                .catchError((error, stackTrace) {
+                              presentErrorAlert(context, error, stackTrace);
+                            });
                           },
                           child: Text('Torch: ${isTorchActive ? 'on' : 'off'}'),
                         ),
