@@ -1,4 +1,4 @@
-import '../../camera_controller.dart';
+import '../../scanner_controller.dart';
 import '../../types/scanner_event.dart';
 import 'package:flutter/material.dart';
 
@@ -53,7 +53,7 @@ class MaterialPreviewOverlayState extends State<MaterialPreviewOverlay>
       const wait = 2.0;
       const expand = 25.0;
 
-      final cameraController = CameraController();
+      final scannerController = ScannerController();
 
       _opacitySequence = TweenSequence([
         TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: fadeIn),
@@ -76,15 +76,15 @@ class MaterialPreviewOverlayState extends State<MaterialPreviewOverlay>
 
       _controller.addStatusListener((status) {
         if (status == AnimationStatus.completed &&
-            cameraController.events.value == ScannerEvent.resumed) {
+            scannerController.events.value == ScannerEvent.resumed) {
           Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
             _controller.forward(from: _controller.lowerBound);
           });
         }
       });
 
-      cameraController.events.addListener(() {
-        if (cameraController.events.value == ScannerEvent.resumed) {
+      scannerController.events.addListener(() {
+        if (scannerController.events.value == ScannerEvent.resumed) {
           _controller.forward();
         } else {
           _controller.reset();

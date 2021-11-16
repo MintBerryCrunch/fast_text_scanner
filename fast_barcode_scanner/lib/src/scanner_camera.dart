@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
-import 'package:fast_barcode_scanner/src/camera_controller.dart';
+import 'package:fast_barcode_scanner/src/scanner_controller.dart';
 import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,81 +26,85 @@ Widget _defaultOnError(BuildContext context, Object? error) {
 ///
 /// This class is used in the widget tree and connects to the camera
 /// as soon as didChangeDependencies gets called.
-class BarcodeCamera extends StatefulWidget {
-  const BarcodeCamera({
+class ScannerCamera extends StatefulWidget {
+  const ScannerCamera({
     Key? key,
-    required this.types,
-    this.mode = DetectionMode.pauseVideo,
+    this.detectionMode = DetectionMode.pauseVideo,
     this.resolution = Resolution.hd720,
     this.framerate = Framerate.fps30,
     this.position = CameraPosition.back,
+    this.scanMode = ScanMode.barcode,
+    this.barcodeTypes = const [],
+    this.textRecognitionTypes = const [],
     this.imageInversion = ImageInversion.none,
     this.onScan,
     this.children = const [],
     this.dispose = true,
-    this.scanMode = ScanMode.barcode,
     ErrorCallback? onError,
   })  : onError = onError ?? _defaultOnError,
         super(key: key);
 
-  final List<BarcodeType> types;
   final Resolution resolution;
   final Framerate framerate;
-  final DetectionMode mode;
+  final DetectionMode detectionMode;
   final CameraPosition position;
+  final ScanMode scanMode;
+  final List<BarcodeType> barcodeTypes;
+  final List<TextRecognitionType> textRecognitionTypes;
   final ImageInversion imageInversion;
   final void Function(ScanResult)? onScan;
   final List<Widget> children;
   final ErrorCallback onError;
   final bool dispose;
-  final ScanMode scanMode;
 
   @override
-  BarcodeCameraState createState() => BarcodeCameraState();
+  ScannerCameraState createState() => ScannerCameraState();
 }
 
-class BarcodeCameraState extends State<BarcodeCamera> {
+class ScannerCameraState extends State<ScannerCamera> {
   var _opacity = 0.0;
   var showingError = false;
 
-  final cameraController = CameraController();
+  final scannerController = ScannerController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final configurationFuture = cameraController.state.isInitialized
-        ? cameraController.configure(
-            types: widget.types,
-            resolution: widget.resolution,
+    final configurationFuture = scannerController.state.isInitialized
+        ? scannerController.configure(
+      resolution: widget.resolution,
             framerate: widget.framerate,
             position: widget.position,
+            scanMode: widget.scanMode,
+            barcodeTypes: widget.barcodeTypes,
+            textRecognitionTypes: widget.textRecognitionTypes,
             imageInversion: widget.imageInversion,
             onScan: widget.onScan,
-            scanMode: widget.scanMode,
           )
-        : cameraController.initialize(
-            widget.types,
-            widget.resolution,
+        : scannerController.initialize(
+      widget.resolution,
             widget.framerate,
+            widget.detectionMode,
             widget.position,
-            widget.mode,
-            widget.imageInversion,
-            widget.onScan,
             widget.scanMode,
+            widget.onScan,
+            widget.barcodeTypes,
+            widget.textRecognitionTypes,
+            widget.imageInversion,
           );
 
     configurationFuture
         .whenComplete(() => setState(() => _opacity = 1.0))
         .onError((error, stackTrace) => setState(() => showingError = true));
 
-    cameraController.events.addListener(onScannerEvent);
+    scannerController.events.addListener(onScannerEvent);
   }
 
   void onScannerEvent() {
-    if (cameraController.events.value != ScannerEvent.error && showingError) {
+    if (scannerController.events.value != ScannerEvent.error && showingError) {
       setState(() => showingError = false);
-    } else if (cameraController.events.value == ScannerEvent.error) {
+    } else if (scannerController.events.value == ScannerEvent.error) {
       setState(() => showingError = true);
     }
   }
@@ -108,24 +112,24 @@ class BarcodeCameraState extends State<BarcodeCamera> {
   @override
   void dispose() {
     if (widget.dispose) {
-      cameraController.dispose();
+      scannerController.dispose();
     } else {
-      cameraController.pauseCamera();
+      scannerController.pauseCamera();
     }
 
-    cameraController.events.removeListener(onScannerEvent);
+    scannerController.events.removeListener(onScannerEvent);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cameraState = cameraController.state;
+    final cameraState = scannerController.state;
     return ColoredBox(
       color: Colors.black,
       child: AnimatedOpacity(
         opacity: _opacity,
         duration: const Duration(milliseconds: 260),
-        child: cameraController.events.value == ScannerEvent.error
+        child: scannerController.events.value == ScannerEvent.error
             ? widget.onError(
                 context,
                 cameraState.error ?? "Unknown error occured",

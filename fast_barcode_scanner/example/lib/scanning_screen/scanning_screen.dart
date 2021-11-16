@@ -69,7 +69,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
         ],
         resolution: Resolution.hd720,
         framerate: Framerate.fps30,
-        mode: DetectionMode.pauseVideo,
+        detectionMode: DetectionMode.pauseVideo,
         position: CameraPosition.back,
         imageInversion: ImageInversion.alternateFrameInversion,
         onScan: (code) {

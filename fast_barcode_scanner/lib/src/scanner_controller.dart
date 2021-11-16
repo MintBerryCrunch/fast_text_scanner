@@ -24,10 +24,10 @@ class ScannerState {
 /// Middleman, handling the communication with native platforms.
 ///
 /// Allows for custom backends.
-abstract class CameraController {
+abstract class ScannerController {
   static final _instance = _CameraController._internal();
 
-  factory CameraController() => _instance;
+  factory ScannerController() => _instance;
 
   /// The cumulated state of the barcode scanner.
   ///
@@ -45,15 +45,18 @@ abstract class CameraController {
   ///
   /// Events and errors are received via the current state's eventNotifier.
   Future<void> initialize(
-    List<BarcodeType> types,
     Resolution resolution,
     Framerate framerate,
-    CameraPosition position,
     DetectionMode detectionMode,
-    ImageInversion imageInversion,
-    void Function(ScanResult)? onScan,
+    CameraPosition position,
     ScanMode scanMode,
-  );
+    void Function(ScanResult)? onScan, [
+    // Ignored if scanMode != barcode
+    List<BarcodeType> barcodeTypes = const [],
+    // Ignored if scanMode != textRecognition
+    List<TextRecognitionType> textRecognitionTypes = const [],
+    ImageInversion imageInversion = ImageInversion.none,
+  ]);
 
   /// Stops the camera and disposes all associated resources.
   ///
@@ -94,14 +97,15 @@ abstract class CameraController {
   ///
   /// Can be called while running.
   Future<void> configure({
-    List<BarcodeType>? types,
     Resolution? resolution,
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ScanMode? scanMode,
+    List<BarcodeType>? barcodeTypes,
+    List<TextRecognitionType>? textRecognitionTypes,
     ImageInversion? imageInversion,
     void Function(ScanResult)? onScan,
-    ScanMode? scanMode,
   });
 
   /// Analyze a still image, which can be chosen from an image picker.
@@ -110,7 +114,7 @@ abstract class CameraController {
   Future<List<ScanResult>?> scanImage(ImageSource source);
 }
 
-class _CameraController implements CameraController {
+class _CameraController implements ScannerController {
   _CameraController._internal() : super();
 
   final FastBarcodeScannerPlatform _platform =
@@ -137,25 +141,43 @@ class _CameraController implements CameraController {
 
   @override
   Future<void> initialize(
-    List<BarcodeType> types,
     Resolution resolution,
     Framerate framerate,
-    CameraPosition position,
     DetectionMode detectionMode,
-    ImageInversion imageInversion,
-    void Function(ScanResult)? onScan,
+    CameraPosition position,
     ScanMode scanMode,
-  ) async {
+    void Function(ScanResult)? onScan, [
+    // Ignored if scanMode != barcode
+    List<BarcodeType> barcodeTypes = const [],
+    // Ignored if scanMode != textRecognition
+    List<TextRecognitionType> textRecognitionTypes = const [],
+    ImageInversion imageInversion = ImageInversion.none,
+  ]) async {
     try {
-      state._previewConfig = await _platform.init(types, resolution, framerate,
-          detectionMode, position, imageInversion, scanMode);
+      state._previewConfig = await _platform.init(
+        resolution,
+        framerate,
+        detectionMode,
+        position,
+        scanMode,
+        barcodeTypes,
+        textRecognitionTypes,
+        imageInversion,
+      );
 
       _onScan = onScan;
 
       _platform.setOnDetectHandler(_onDetectHandler);
 
       state._scannerConfig = ScannerConfiguration(
-          types, resolution, framerate, position, detectionMode, scanMode);
+          resolution,
+          framerate,
+          position,
+          detectionMode,
+          scanMode,
+          barcodeTypes,
+          textRecognitionTypes,
+          imageInversion);
 
       state._error = null;
 
@@ -250,14 +272,15 @@ class _CameraController implements CameraController {
 
   @override
   Future<void> configure({
-    List<BarcodeType>? types,
     Resolution? resolution,
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
+    ScanMode? scanMode,
+    List<BarcodeType>? barcodeTypes,
+    List<TextRecognitionType>? textRecognitionTypes,
     ImageInversion? imageInversion,
     void Function(ScanResult)? onScan,
-    ScanMode? scanMode,
   }) async {
     if (state.isInitialized && !_configuring) {
       final _scannerConfig = state._scannerConfig!;
@@ -265,22 +288,25 @@ class _CameraController implements CameraController {
 
       try {
         state._previewConfig = await _platform.changeConfiguration(
-          types: types,
           resolution: resolution,
           framerate: framerate,
           detectionMode: detectionMode,
           position: position,
-          imageInversion: imageInversion,
           scanMode: scanMode,
+          barcodeTypes: barcodeTypes,
+          textRecognitionTypes: textRecognitionTypes,
+          imageInversion: imageInversion,
         );
 
         state._scannerConfig = _scannerConfig.copyWith(
-          types: types,
           resolution: resolution,
           framerate: framerate,
           detectionMode: detectionMode,
           position: position,
           scanMode: scanMode,
+          barcodeTypes: barcodeTypes,
+          textRecognitionTypes: textRecognitionTypes,
+          imageInversion: imageInversion,
         );
 
         if (onScan != null) {

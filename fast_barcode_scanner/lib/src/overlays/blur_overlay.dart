@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../camera_controller.dart';
+import '../scanner_controller.dart';
 import '../types/scanner_event.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,7 @@ class BlurPreviewOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: CameraController().events,
+      valueListenable: ScannerController().events,
       builder: (context, event, child) {
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: shouldBlur(event) ? blurAmount : 0.0),

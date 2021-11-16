@@ -5,18 +5,15 @@ import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_pla
 /// Holds detailed information about the running camera session.
 class ScannerConfiguration {
   const ScannerConfiguration(
-    this.types,
     this.resolution,
     this.framerate,
     this.position,
     this.detectionMode,
     this.scanMode,
+    this.barcodeTypes,
+    this.textRecognitionTypes,
+    this.imageInversion,
   );
-
-  /// The types the scanner should look out for.
-  ///
-  /// If a barcode type is not in this list, it will not be detected.
-  final List<BarcodeType> types;
 
   /// The target resolution of the camera feed.
   ///
@@ -38,21 +35,37 @@ class ScannerConfiguration {
 
   final ScanMode scanMode;
 
+  /// The types the scanner should look out for.
+  ///
+  /// If a barcode type is not in this list, it will not be detected.
+  final List<BarcodeType> barcodeTypes;
+
+  /// The types the scanner should look out for.
+  ///
+  /// If a barcode type is not in this list, it will not be detected.
+  final List<TextRecognitionType> textRecognitionTypes;
+
+  final ImageInversion imageInversion;
+
   ScannerConfiguration copyWith({
-    List<BarcodeType>? types,
     Resolution? resolution,
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
     ScanMode? scanMode,
+    List<BarcodeType>? barcodeTypes,
+    List<TextRecognitionType>? textRecognitionTypes,
+    ImageInversion? imageInversion,
   }) {
     return ScannerConfiguration(
-      types ?? this.types,
       resolution ?? this.resolution,
       framerate ?? this.framerate,
       position ?? this.position,
       detectionMode ?? this.detectionMode,
       scanMode ?? this.scanMode,
+      barcodeTypes ?? this.barcodeTypes,
+      textRecognitionTypes ?? this.textRecognitionTypes,
+      imageInversion ?? this.imageInversion,
     );
   }
 }
