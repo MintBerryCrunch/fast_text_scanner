@@ -1,4 +1,4 @@
-import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart';
+import 'package:fast_barcode_scanner_platform_interface/src/types/scanner_configuration.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

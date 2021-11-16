@@ -1,6 +1,7 @@
 import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart';
 import 'package:fast_barcode_scanner_platform_interface/src/method_channel_fast_barcode_scanner.dart';
 import 'package:fast_barcode_scanner_platform_interface/src/types/image_source.dart';
+import 'package:fast_barcode_scanner_platform_interface/src/types/scanner_configuration.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,21 +35,24 @@ void main() {
         () async {
       // Act
       final response = await scanner.init(
-        [BarcodeType.ean13],
         Resolution.hd1080,
         Framerate.fps60,
         DetectionMode.pauseDetection,
         CameraPosition.back,
+        ScanMode.barcode,
+        [BarcodeType.ean13],
       );
 
       // Assert
       expect(mockChannel.log, [
         isMethodCall('init', arguments: {
-          'types': ['ean13'],
           'mode': 'pauseDetection',
           'res': 'hd1080',
           'fps': 'fps60',
           'pos': 'back',
+          'scanMode': 'barcode',
+          'barcodeTypes': ['ean13'],
+          'textRecognitionTypes': [],
           'inv': 'none',
         }),
       ]);
@@ -75,11 +79,12 @@ void main() {
       // Assert
       expect(
         () => scanner.init(
-          [BarcodeType.ean13],
           Resolution.hd720,
           Framerate.fps60,
           DetectionMode.pauseDetection,
           CameraPosition.back,
+          ScanMode.barcode,
+          [BarcodeType.ean13],
         ),
         throwsA(isA<PlatformException>()
             .having((e) => e.code, 'code', 'TESTING_ERROR_CODE')
@@ -107,11 +112,12 @@ void main() {
       scanner = MethodChannelFastBarcodeScanner();
 
       await scanner.init(
-        [BarcodeType.ean13],
         Resolution.hd720,
         Framerate.fps60,
         DetectionMode.pauseDetection,
         CameraPosition.back,
+        ScanMode.barcode,
+        [BarcodeType.ean13],
       );
     });
 
@@ -167,11 +173,12 @@ void main() {
       scanner = MethodChannelFastBarcodeScanner();
 
       await scanner.init(
-        [BarcodeType.ean13],
         Resolution.hd720,
         Framerate.fps60,
         DetectionMode.pauseDetection,
         CameraPosition.back,
+        ScanMode.barcode,
+        [BarcodeType.ean13],
       );
     });
 

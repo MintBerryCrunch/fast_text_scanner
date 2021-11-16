@@ -46,11 +46,6 @@ enum BarcodeType {
 
   /// iOS
   interleaved,
-
-  //Peru: 010IM123456
-  textPeru,
-
-  textRegular,
 }
 
 extension BarcodeTypeName on BarcodeType {

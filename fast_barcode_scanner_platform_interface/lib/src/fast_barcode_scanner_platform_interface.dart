@@ -1,10 +1,12 @@
 import 'package:fast_barcode_scanner_platform_interface/src/types/image_source.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'method_channel_fast_barcode_scanner.dart';
 import 'types/barcode.dart';
 import 'types/barcode_type.dart';
 import 'types/preview_configuration.dart';
-import 'method_channel_fast_barcode_scanner.dart';
+import 'types/scanner_configuration.dart';
+import 'types/text_recognition_type.dart';
 
 /// The interface that implementations of fast_barcode_scanner must implement.
 ///
@@ -35,13 +37,16 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
   /// Initializes and starts the native camera interface.
   /// Returns a [PreviewConfiguration] the camera is setup with.
   Future<PreviewConfiguration> init(
-    List<BarcodeType> types,
     Resolution resolution,
     Framerate framerate,
     DetectionMode detectionMode,
-    CameraPosition position, [
+    CameraPosition position,
+    ScanMode scanMode, [
+    // Ignored if scanMode != barcode
+    List<BarcodeType> barcodeTypes = const [],
+    // Ignored if scanMode != textRecognition
+    List<TextRecognitionType> textRecognitionTypes = const [],
     ImageInversion imageInversion = ImageInversion.none,
-    ScanMode scanMode = ScanMode.barcode,
   ]) {
     throw UnimplementedError('init() has not been implemented');
   }
@@ -84,13 +89,14 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
   /// Changes the supplied camera settings.
   /// Nil values are ignored and stay unchanged.
   Future<PreviewConfiguration> changeConfiguration({
-    List<BarcodeType>? types,
     Resolution? resolution,
     Framerate? framerate,
     DetectionMode? detectionMode,
     CameraPosition? position,
-    ImageInversion? imageInversion,
     ScanMode? scanMode,
+    List<BarcodeType>? barcodeTypes,
+    List<TextRecognitionType>? textRecognitionTypes,
+    ImageInversion? imageInversion,
   }) {
     throw UnimplementedError('changeConfiguration() has not been implemented');
   }
