@@ -39,21 +39,28 @@ class _ScansCounterState extends State<ScansCounter> {
         children: [
           Expanded(
             child: barcode != null
-                ? Text(
-                    "${history.count(barcode)}x\n${describeEnum(barcode.type)} - ${(barcode.valueType != null ? describeEnum(barcode.valueType!) : "")}: ${barcode.value}")
+                ? _barcodeDescription(barcode)
                 : const SizedBox.shrink(),
           ),
           TextButton(
               onPressed: () async {
-                final cam = CameraController();
-                cam.pauseCamera();
+                final controller = ScannerController();
+                controller.pauseCamera();
                 await Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const HistoryScreen()));
-                cam.resumeCamera();
+                controller.resumeCamera();
               },
               child: const Text('History'))
         ],
       ),
     );
+  }
+
+  Text _barcodeDescription(ScanResult barcode) {
+    if (barcode.barcodeType == null) {
+      return Text("${history.count(barcode)}x\n${barcode.value}");
+    }
+    return Text(
+        "${history.count(barcode)}x\n${describeEnum(barcode.barcodeType!)} - ${(barcode.barcodeValueType != null ? describeEnum(barcode.barcodeValueType!) : "")}: ${barcode.value}");
   }
 }

@@ -64,14 +64,14 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
           ListTile(
             title: const Text('Active code types'),
             subtitle:
-                Text(_config.types.map((e) => describeEnum(e)).join(', ')),
+                Text(_config.barcodeTypes.map((e) => describeEnum(e)).join(', ')),
             onTap: () async {
               final types = await Navigator.push<List<BarcodeType>>(context,
                   MaterialPageRoute(builder: (_) {
                 return BarcodeTypeSelector(_config);
               }));
               setState(() {
-                _config = _config.copyWith(types: types);
+                _config = _config.copyWith(barcodeTypes: types);
               });
             },
           ),
@@ -136,8 +136,9 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
 
   Future<void> applyChanges() async {
     try {
-      await CameraController().configure(
-        types: _config.types,
+      await ScannerController().configure(
+        scanMode: _config.scanMode,
+        barcodeTypes: _config.barcodeTypes,
         framerate: _config.framerate,
         resolution: _config.resolution,
         detectionMode: _config.detectionMode,

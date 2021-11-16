@@ -8,11 +8,13 @@ export 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_pla
     show
         ScanResult,
         BarcodeType,
+        BarcodeValueType,
         TextRecognitionType,
         ImageSource,
         Framerate,
         Resolution,
         DetectionMode,
+        ScanMode,
         CameraPosition,
         ImageInversion,
         PreviewConfiguration;

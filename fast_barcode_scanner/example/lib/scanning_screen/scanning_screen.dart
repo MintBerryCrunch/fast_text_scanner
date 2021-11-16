@@ -21,7 +21,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
   final _cameraRunning = ValueNotifier(true);
   final _scannerRunning = ValueNotifier(true);
 
-  final cam = CameraController();
+  final controller = ScannerController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
           IconButton(
             icon: const Icon(Icons.info),
             onPressed: () {
-              final preview = cam.state.previewConfig;
+              final preview = controller.state.previewConfig;
               if (preview != null) {
                 showDialog(
                   context: context,
@@ -62,15 +62,16 @@ class _ScanningScreenState extends State<ScanningScreen> {
           )
         ],
       ),
-      body: BarcodeCamera(
-        types: const [
-          BarcodeType.dataMatrix,
-          BarcodeType.code128,
-        ],
+      body: ScannerCamera(
         resolution: Resolution.hd720,
         framerate: Framerate.fps30,
         detectionMode: DetectionMode.pauseVideo,
         position: CameraPosition.back,
+        scanMode: ScanMode.barcode,
+        barcodeTypes: const [
+          BarcodeType.dataMatrix,
+          BarcodeType.code128,
+        ],
         imageInversion: ImageInversion.alternateFrameInversion,
         onScan: (code) {
           history.add(code);
@@ -103,8 +104,8 @@ class _ScanningScreenState extends State<ScanningScreen> {
                             return ElevatedButton(
                               onPressed: () {
                                 final future = isRunning
-                                    ? cam.pauseCamera()
-                                    : cam.resumeCamera();
+                                    ? controller.pauseCamera()
+                                    : controller.resumeCamera();
 
                                 future
                                     .then((_) =>
@@ -123,8 +124,8 @@ class _ScanningScreenState extends State<ScanningScreen> {
                             return ElevatedButton(
                               onPressed: () {
                                 final future = isRunning
-                                    ? cam.pauseScanner()
-                                    : cam.resumeScanner();
+                                    ? controller.pauseScanner()
+                                    : controller.resumeScanner();
 
                                 future
                                     .then((_) =>
@@ -142,7 +143,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
                         valueListenable: _torchIconState,
                         builder: (context, isTorchActive, _) => ElevatedButton(
                           onPressed: () {
-                            cam
+                            controller
                                 .setTorch(!isTorchActive)
                                 .then((torchState) =>
                                     _torchIconState.value = torchState)
@@ -159,10 +160,10 @@ class _ScanningScreenState extends State<ScanningScreen> {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
-                          final config = cam.state.scannerConfig;
+                          final config = controller.state.scannerConfig;
                           if (config != null) {
                             // swallow errors
-                            cam.pauseCamera().catchError((_, __) {});
+                            controller.pauseCamera().catchError((_, __) {});
 
                             await Navigator.push(
                               context,
@@ -171,8 +172,9 @@ class _ScanningScreenState extends State<ScanningScreen> {
                               ),
                             );
 
-                            cam.resumeCamera().catchError((error, stack) =>
-                                presentErrorAlert(context, error, stack));
+                            controller.resumeCamera().catchError(
+                                (error, stack) =>
+                                    presentErrorAlert(context, error, stack));
                           }
                         },
                         child: const Text('Update Configuration'),

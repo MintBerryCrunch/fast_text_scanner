@@ -1,3 +1,4 @@
+import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -44,14 +45,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
           final scan = history.scans[history.scans.length - idx - 1];
           return ListTile(
             title: Text(scan.value),
-            subtitle: Text(describeEnum(scan.type) +
-                " - " +
-                (scan.valueType != null ? describeEnum(scan.valueType!) : "")),
+            subtitle: _subtitle(scan.barcodeType, scan.barcodeValueType),
           );
         },
         separatorBuilder: (_, __) => const Divider(height: 1),
         itemCount: history.scans.length,
       ),
     );
+  }
+
+  Text _subtitle(BarcodeType? barcodeType, BarcodeValueType? barcodeValueType) {
+    if (barcodeType == null) {
+      return const Text("");
+    }
+    return Text(describeEnum(barcodeType) +
+        " - " +
+        (barcodeValueType != null ? describeEnum(barcodeValueType) : ""));
   }
 }

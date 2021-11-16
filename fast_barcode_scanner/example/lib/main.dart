@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final cam = CameraController();
+                final cam = ScannerController();
 
                 final dialog = SimpleDialog(
                   children: [
