@@ -247,7 +247,7 @@ void main() {
           channelName: 'com.jhoogstraat/fast_barcode_scanner',
           methods: {
             'scan': [
-              ["ean13", "1234"]
+              ["1234", "ean13", null, null]
             ]
           });
 
@@ -255,7 +255,7 @@ void main() {
 
       expect(mockChannel.log, [isMethodCall('scan', arguments: null)]);
       expect(actualBarcode, [
-        ScanResult(["ean13", "1234"])
+        ScanResult(["1234", "ean13", null, null])
       ]);
     });
 

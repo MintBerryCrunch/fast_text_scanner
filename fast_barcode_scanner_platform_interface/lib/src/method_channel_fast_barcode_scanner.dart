@@ -4,9 +4,9 @@ import 'package:fast_barcode_scanner_platform_interface/src/types/image_source.d
 import 'package:flutter/services.dart';
 
 import 'fast_barcode_scanner_platform_interface.dart';
-import 'types/barcode.dart';
 import 'types/barcode_type.dart';
 import 'types/preview_configuration.dart';
+import 'types/scan_result.dart';
 import 'types/scanner_configuration.dart';
 import 'types/text_recognition_type.dart';
 
