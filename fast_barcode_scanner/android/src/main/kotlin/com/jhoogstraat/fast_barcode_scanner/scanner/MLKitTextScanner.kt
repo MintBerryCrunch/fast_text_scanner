@@ -17,18 +17,21 @@ class MLKitTextScanner(
 ) : ImageAnalysis.Analyzer {
     private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val imagePreprocessor = ImagePreprocessor(imageInversion, 90)
+    private val textRecognitionMask = TextRecognitionMask(textRecognitionTypes)
 
     @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
-        // TODO textRecognitionTypes
+        // TODO regular textRecognitionType
         val inputImage = imagePreprocessor.preprocessImage(imageProxy)
         textRecognizer.process(inputImage)
             .addOnSuccessListener { result ->
-                val mapped = result.textBlocks
+                val filteredAndMapped = result.textBlocks
                     .flatMap { it.lines }
-                    // TODO textRecognitionTypes
-                    .map { RecognizedText(it.text, TextRecognitionType.peruMask) }
-                successListener(mapped)
+                    .flatMap { textRecognitionMask.applyMask(it.text) }
+                    .map { RecognizedText(it, TextRecognitionType.peruMask) }
+                if (filteredAndMapped.isNotEmpty()) {
+                    successListener(filteredAndMapped)
+                }
             }
             .addOnFailureListener(failureListener)
             .addOnCompleteListener { imageProxy.close() }
