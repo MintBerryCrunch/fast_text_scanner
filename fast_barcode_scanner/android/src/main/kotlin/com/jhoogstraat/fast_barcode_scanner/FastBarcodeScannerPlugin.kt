@@ -17,7 +17,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.jhoogstraat.fast_barcode_scanner.types.PreviewConfiguration
 import com.jhoogstraat.fast_barcode_scanner.types.ScannerException
-import com.jhoogstraat.fast_barcode_scanner.types.barcodeStringMap
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -43,6 +42,7 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private var camera: Camera? = null
 
     private val callArgumentsMapper = CallArgumentsMapper()
+    private val callResultMapper = CallResultMapper()
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         commandChannel = MethodChannel(
@@ -114,7 +114,7 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 "scan" -> {
                     scanImage(call.arguments)
                         .addOnSuccessListener { barcodes ->
-                            result.success(barcodes?.map { encode(it) })
+                            result.success(callResultMapper.mapBarcodesToScanResult(barcodes))
                         }
                         .addOnFailureListener {
                             throw ScannerException.AnalysisFailed(it)
@@ -160,14 +160,6 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
-    private fun encode(barcode: Barcode): List<*> {
-        return listOf(
-            barcodeStringMap[barcode.format],
-            barcode.rawValue,
-            barcode.valueType
-        )
-    }
-
     @SuppressLint("UnsafeOptInUsageError")
     private fun initialize(configuration: HashMap<String, Any>): Task<PreviewConfiguration> {
         if (this.camera != null)
@@ -181,7 +173,7 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             pluginBinding.textureRegistry.createSurfaceTexture(),
             callArgumentsMapper.parseInitArgs(configuration)
         ) { barcodes ->
-            detectionEventSink?.success(encode(barcodes.first()))
+            detectionEventSink?.success(callResultMapper.mapBarcodesToScanResult(barcodes))
         }
 
         this.camera = camera
