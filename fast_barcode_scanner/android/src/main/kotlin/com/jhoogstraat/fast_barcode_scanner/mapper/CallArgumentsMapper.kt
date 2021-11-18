@@ -1,4 +1,4 @@
-package com.jhoogstraat.fast_barcode_scanner
+package com.jhoogstraat.fast_barcode_scanner.mapper
 
 import android.util.Log
 import com.jhoogstraat.fast_barcode_scanner.types.*

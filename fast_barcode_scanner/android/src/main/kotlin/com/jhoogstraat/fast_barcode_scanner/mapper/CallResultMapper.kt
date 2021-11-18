@@ -1,6 +1,7 @@
-package com.jhoogstraat.fast_barcode_scanner
+package com.jhoogstraat.fast_barcode_scanner.mapper
 
 import com.google.mlkit.vision.barcode.Barcode
+import com.jhoogstraat.fast_barcode_scanner.types.RecognizedText
 import com.jhoogstraat.fast_barcode_scanner.types.barcodeStringMap
 
 class CallResultMapper {
@@ -21,6 +22,22 @@ class CallResultMapper {
             barcodeStringMap[barcode.format],
             barcode.valueType,
             null
+        )
+    }
+
+    fun mapTextToScanResult(entries: List<RecognizedText>?): List<List<*>> {
+        if (entries == null) {
+            return emptyList()
+        }
+        return entries.map { mapTextToScanResult(it) }
+    }
+
+    private fun mapTextToScanResult(text: RecognizedText): List<*> {
+        return listOf(
+            text.value,
+            null,
+            null,
+            text.recognitionType
         )
     }
 }

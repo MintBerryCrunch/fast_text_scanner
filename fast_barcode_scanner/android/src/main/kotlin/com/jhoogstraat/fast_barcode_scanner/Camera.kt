@@ -8,7 +8,6 @@ import android.view.Surface
 import androidx.camera.core.*
 import androidx.camera.core.Camera
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.tasks.Task
@@ -16,7 +15,9 @@ import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.jhoogstraat.fast_barcode_scanner.mapper.CallArgumentsMapper
 import com.jhoogstraat.fast_barcode_scanner.scanner.MLKitBarcodeScanner
+import com.jhoogstraat.fast_barcode_scanner.scanner.MLKitTextScanner
 import com.jhoogstraat.fast_barcode_scanner.types.*
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import io.flutter.view.TextureRegistry
@@ -25,25 +26,26 @@ import java.util.concurrent.Executors
 
 class Camera(
     val activity: Activity,
-    private val textureRegistry: TextureRegistry,
+    textureRegistry: TextureRegistry,
     initialConfig: ScannerConfiguration,
-    private val listener: (List<Barcode>) -> Unit
+    private val barcodesListener: (List<Barcode>) -> Unit,
+    private val textListener: (List<RecognizedText>) -> Unit
 ) : RequestPermissionsResultListener {
 
     /* Scanner configuration */
     private var scannerConfiguration: ScannerConfiguration
 
     /* Camera */
+    private val cameraExecutor: ExecutorService
     private lateinit var camera: Camera
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var cameraSelector: CameraSelector
-    private var cameraExecutor: ExecutorService
     private lateinit var cameraSurfaceProvider: Preview.SurfaceProvider
     private lateinit var preview: Preview
     private lateinit var imageAnalysis: ImageAnalysis
 
     /* ML Kit */
-    private var barcodeScanner: MLKitBarcodeScanner
+    private val scanner: ImageAnalysis.Analyzer
 
     /* State */
     private var isInitialized = false
@@ -52,62 +54,59 @@ class Camera(
     val torchState: Boolean
         get() = camera.cameraInfo.torchState.value == TorchState.ON
 
-    private var permissionsCompleter: TaskCompletionSource<Unit>? = null
-
     private val callArgumentsMapper = CallArgumentsMapper()
+    private val permissionManager = PermissionManager()
+
     private val texture = textureRegistry.createSurfaceTexture()
 
     /* Companion */
     companion object {
         private const val TAG = "fast_barcode_scanner"
-        private const val PERMISSIONS_REQUEST_CODE = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 
     init {
         scannerConfiguration = initialConfig
 
-        val options = BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(0, *scannerConfiguration.barcodeTypesEncoded)
-            .build()
-
-        barcodeScanner = MLKitBarcodeScanner(options, scannerConfiguration.inversion, { codes ->
-            if (codes.isNotEmpty()) {
-                if (scannerConfiguration.detectionMode == DetectionMode.pauseDetection) {
-                    stopDetector()
-                } else if (scannerConfiguration.detectionMode == DetectionMode.pauseVideo) {
-                    stopCamera()
-                }
-
-                listener(codes)
-            }
-        }, {
-            Log.e(TAG, "Error in Scanner", it)
-        })
+        scanner = when (initialConfig.scanMode) {
+            ScanMode.barcode -> buildBarcodeScanner(scannerConfiguration)
+            ScanMode.textRecognition -> buildTextScanner(scannerConfiguration)
+        }
 
         // Create Camera Thread
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    fun requestPermissions(): Task<Unit> {
-        permissionsCompleter = TaskCompletionSource<Unit>()
+    private fun buildBarcodeScanner(scannerConfiguration: ScannerConfiguration): MLKitBarcodeScanner {
+        val options = BarcodeScannerOptions.Builder()
+            .setBarcodeFormats(0, *scannerConfiguration.barcodeTypesEncoded)
+            .build()
 
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_DENIED
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                REQUIRED_PERMISSIONS,
-                PERMISSIONS_REQUEST_CODE
-            )
-        } else {
-            permissionsCompleter!!.setResult(null)
-        }
-
-        return permissionsCompleter!!.task
+        return MLKitBarcodeScanner(options, scannerConfiguration.inversion, {
+            if (it.isNotEmpty()) {
+                onScanSuccessful()
+                barcodesListener(it)
+            }
+        }, { Log.e(TAG, "Error in Scanner", it) })
     }
+
+    private fun buildTextScanner(scannerConfiguration: ScannerConfiguration): MLKitTextScanner {
+        return MLKitTextScanner(scannerConfiguration.textRecognitionTypes, scannerConfiguration.inversion, {
+            if (it.isNotEmpty()) {
+                onScanSuccessful()
+                textListener(it)
+            }
+        }, { Log.e(TAG, "Error in Scanner", it) })
+    }
+
+    private fun onScanSuccessful() {
+        if (scannerConfiguration.detectionMode == DetectionMode.pauseDetection) {
+            stopDetector()
+        } else if (scannerConfiguration.detectionMode == DetectionMode.pauseVideo) {
+            stopCamera()
+        }
+    }
+
+    fun requestPermissions() = permissionManager.requestPermissions(activity)
 
     /**
      * Fetching the camera is an async task.
@@ -157,7 +156,7 @@ class Camera(
             .setTargetRotation(Surface.ROTATION_0)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
-            .also { it.setAnalyzer(cameraExecutor, barcodeScanner) }
+            .also { it.setAnalyzer(cameraExecutor, scanner) }
     }
 
     private fun bindCameraUseCases() {
@@ -215,7 +214,7 @@ class Camera(
         else if (!cameraProvider.isBound(imageAnalysis))
             throw ScannerException.NotInitialized()
 
-        imageAnalysis.setAnalyzer(cameraExecutor, barcodeScanner)
+        imageAnalysis.setAnalyzer(cameraExecutor, scanner)
     }
 
     fun stopDetector() {
@@ -266,19 +265,7 @@ class Camera(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
-    ): Boolean {
-        if (requestCode == PERMISSIONS_REQUEST_CODE) {
-            permissionsCompleter?.also { completer ->
-                if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                    completer.setResult(null)
-                } else {
-                    completer.setException(ScannerException.Unauthorized())
-                }
-            }
-        }
-
-        return true
-    }
+    ) = permissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     private fun getPreviewConfiguration(): PreviewConfiguration {
         val previewRes =

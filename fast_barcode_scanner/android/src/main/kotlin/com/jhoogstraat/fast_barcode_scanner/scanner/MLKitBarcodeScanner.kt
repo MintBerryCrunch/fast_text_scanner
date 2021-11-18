@@ -3,37 +3,26 @@ package com.jhoogstraat.fast_barcode_scanner.scanner
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
-import com.jhoogstraat.fast_barcode_scanner.ImageInvertor
 import com.jhoogstraat.fast_barcode_scanner.types.ImageInversion
 
 class MLKitBarcodeScanner(
     options: BarcodeScannerOptions,
     imageInversion: ImageInversion,
-    private val successListener: OnSuccessListener<List<Barcode>>,
-    private val failureListener: OnFailureListener
+    private val successListener: (List<Barcode>) -> Unit,
+    private val failureListener: (Exception) -> Unit
 ) : ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient(options)
-    private val invertor = ImageInvertor(imageInversion)
+    private val imagePreprocessor = ImagePreprocessor(imageInversion, null)
 
     @ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
-        val inputImage = preprocessImage(imageProxy)
+        val inputImage = imagePreprocessor.preprocessImage(imageProxy)
         scanner.process(inputImage)
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener)
                 .addOnCompleteListener { imageProxy.close() }
-    }
-
-    @ExperimentalGetImage
-    private fun preprocessImage(imageProxy: ImageProxy): InputImage {
-        val originalImage = imageProxy.image!!
-        invertor.invertImageIfNeeded(originalImage)
-        return InputImage.fromMediaImage(originalImage, imageProxy.imageInfo.rotationDegrees)
     }
 }

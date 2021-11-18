@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
+import com.jhoogstraat.fast_barcode_scanner.mapper.CallArgumentsMapper
+import com.jhoogstraat.fast_barcode_scanner.mapper.CallResultMapper
 import com.jhoogstraat.fast_barcode_scanner.types.PreviewConfiguration
 import com.jhoogstraat.fast_barcode_scanner.types.ScannerException
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -161,10 +163,10 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         val camera = Camera(
             activityBinding.activity,
             pluginBinding.textureRegistry,
-            callArgumentsMapper.parseInitArgs(configuration)
-        ) { barcodes ->
-            detectionEventSink?.success(callResultMapper.mapBarcodesToScanResult(barcodes))
-        }
+            callArgumentsMapper.parseInitArgs(configuration),
+            { detectionEventSink?.success(callResultMapper.mapBarcodesToScanResult(it)) },
+            { detectionEventSink?.success(callResultMapper.mapTextToScanResult(it)) },
+        )
 
         this.camera = camera
 
