@@ -54,6 +54,8 @@ class Camera(
 
     private var permissionsCompleter: TaskCompletionSource<Unit>? = null
 
+    private val callArgumentsMapper = CallArgumentsMapper()
+
     /* Companion */
     companion object {
         private const val TAG = "fast_barcode_scanner"
@@ -248,34 +250,7 @@ class Camera(
         if (!isInitialized)
             throw ScannerException.NotInitialized()
 
-        try {
-            val barcodeTypesEncoded = if (args.containsKey("types")) (args["types"] as ArrayList<String>).map {
-                barcodeFormatMap[it] ?: throw ScannerException.InvalidCodeType(it)
-            }.toIntArray() else scannerConfiguration.barcodeTypesEncoded
-            val detectionMode =
-                if (args.containsKey("mode")) DetectionMode.valueOf(args["mode"] as String) else scannerConfiguration.detectionMode
-            val resolution =
-                if (args.containsKey("res")) Resolution.valueOf(args["res"] as String) else scannerConfiguration.resolution
-            val framerate =
-                if (args.containsKey("fps")) Framerate.valueOf(args["fps"] as String) else scannerConfiguration.framerate
-            val position =
-                if (args.containsKey("pos")) CameraPosition.valueOf(args["pos"] as String) else scannerConfiguration.position
-            val inversion =
-                if (args.containsKey("inv")) ImageInversion.valueOf(args["inv"] as String) else scannerConfiguration.inversion
-
-            scannerConfiguration = scannerConfiguration.copy(
-                barcodeTypesEncoded = barcodeTypesEncoded,
-                detectionMode = detectionMode,
-                resolution = resolution,
-                framerate = framerate,
-                position = position,
-                inversion = inversion
-            )
-        } catch (e: ScannerException) {
-            throw e
-        } catch (e: Exception) {
-            throw ScannerException.InvalidArguments(args)
-        }
+        scannerConfiguration = callArgumentsMapper.parseChangeConfigArgs(args, scannerConfiguration)
 
         bindCameraUseCases()
         return getPreviewConfiguration()
