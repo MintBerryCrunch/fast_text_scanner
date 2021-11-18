@@ -137,6 +137,14 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                 )
                             return
                         }
+                        "setTorch" -> {
+                            camera.setTorch(call.arguments as Boolean)
+                                .addListener(
+                                    { result.success(camera.torchState) },
+                                    ContextCompat.getMainExecutor(camera.activity)
+                                )
+                            return
+                        }
                         "dispose" -> dispose()
                         else -> result.notImplemented()
                     }

@@ -248,10 +248,19 @@ class Camera(
         imageAnalysis.clearAnalyzer()
     }
 
+    fun setTorch(enabled: Boolean): ListenableFuture<Void> {
+        if (!isInitialized)
+            throw ScannerException.NotInitialized()
+        if (!isRunning)
+            throw ScannerException.NotRunning()
+
+        return camera.cameraControl.enableTorch(enabled)
+    }
+
     fun toggleTorch(): ListenableFuture<Void> {
         if (!isInitialized)
             throw ScannerException.NotInitialized()
-        else if (!isRunning)
+        if (!isRunning)
             throw ScannerException.NotRunning()
 
         return camera.cameraControl.enableTorch(!torchState)

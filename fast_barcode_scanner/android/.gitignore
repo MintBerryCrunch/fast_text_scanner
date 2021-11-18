@@ -6,3 +6,5 @@
 .DS_Store
 /build
 /captures
+# workaround for missing flutter dependencies
+flutter.jar
