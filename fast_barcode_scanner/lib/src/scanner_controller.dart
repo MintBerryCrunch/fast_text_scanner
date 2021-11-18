@@ -50,7 +50,7 @@ abstract class ScannerController {
     DetectionMode detectionMode,
     CameraPosition position,
     ScanMode scanMode,
-    void Function(ScanResult)? onScan, [
+    void Function(List<ScanResult>)? onScan, [
     // Ignored if scanMode != barcode
     List<BarcodeType> barcodeTypes = const [],
     // Ignored if scanMode != textRecognition
@@ -105,7 +105,7 @@ abstract class ScannerController {
     List<BarcodeType>? barcodeTypes,
     List<TextRecognitionType>? textRecognitionTypes,
     ImageInversion? imageInversion,
-    void Function(ScanResult)? onScan,
+    void Function(List<ScanResult>)? onScan,
   });
 
   /// Analyze a still image, which can be chosen from an image picker.
@@ -137,7 +137,7 @@ class _CameraController implements ScannerController {
   bool _configuring = false;
 
   /// User-defined handler, called when a barcode is detected
-  void Function(ScanResult)? _onScan;
+  void Function(List<ScanResult>)? _onScan;
 
   @override
   Future<void> initialize(
@@ -146,7 +146,7 @@ class _CameraController implements ScannerController {
     DetectionMode detectionMode,
     CameraPosition position,
     ScanMode scanMode,
-    void Function(ScanResult)? onScan, [
+    void Function(List<ScanResult>)? onScan, [
     // Ignored if scanMode != barcode
     List<BarcodeType> barcodeTypes = const [],
     // Ignored if scanMode != textRecognition
@@ -280,7 +280,7 @@ class _CameraController implements ScannerController {
     List<BarcodeType>? barcodeTypes,
     List<TextRecognitionType>? textRecognitionTypes,
     ImageInversion? imageInversion,
-    void Function(ScanResult)? onScan,
+    void Function(List<ScanResult>)? onScan,
   }) async {
     if (state.isInitialized && !_configuring) {
       final _scannerConfig = state._scannerConfig!;
@@ -333,7 +333,7 @@ class _CameraController implements ScannerController {
     }
   }
 
-  void _onDetectHandler(ScanResult code) {
+  void _onDetectHandler(List<ScanResult> code) {
     events.value = ScannerEvent.detected;
     _onScan?.call(code);
   }

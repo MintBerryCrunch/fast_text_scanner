@@ -37,7 +37,7 @@ class CallResultMapper {
             text.value,
             null,
             null,
-            text.recognitionType
+            text.recognitionType.name
         )
     }
 }

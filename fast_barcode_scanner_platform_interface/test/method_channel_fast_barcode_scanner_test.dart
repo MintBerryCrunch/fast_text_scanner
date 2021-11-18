@@ -144,7 +144,7 @@ void main() {
     test('Should not call handler with invalid barcode', () async {
       // Arrange
       ScanResult? actualBarcode;
-      scanner.setOnDetectHandler((code) => actualBarcode = code);
+      scanner.setOnDetectHandler((codes) => codes.contains(actualBarcode));
 
       // Act
       // scanner.handlePlatformMethodCall(

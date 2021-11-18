@@ -102,7 +102,7 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
   }
 
   /// Set the method to be called when a barcode is detected
-  void setOnDetectHandler(void Function(ScanResult) handler) {
+  void setOnDetectHandler(void Function(List<ScanResult>) handler) {
     throw UnimplementedError('setOnDetectHandler() has not been implemented');
   }
 

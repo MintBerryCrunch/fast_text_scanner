@@ -52,7 +52,7 @@ class ScannerCamera extends StatefulWidget {
   final List<BarcodeType> barcodeTypes;
   final List<TextRecognitionType> textRecognitionTypes;
   final ImageInversion imageInversion;
-  final void Function(ScanResult)? onScan;
+  final void Function(List<ScanResult>)? onScan;
   final List<Widget> children;
   final ErrorCallback onError;
   final bool dispose;
@@ -73,7 +73,7 @@ class ScannerCameraState extends State<ScannerCamera> {
 
     final configurationFuture = scannerController.state.isInitialized
         ? scannerController.configure(
-      resolution: widget.resolution,
+            resolution: widget.resolution,
             framerate: widget.framerate,
             position: widget.position,
             scanMode: widget.scanMode,
@@ -83,7 +83,7 @@ class ScannerCameraState extends State<ScannerCamera> {
             onScan: widget.onScan,
           )
         : scannerController.initialize(
-      widget.resolution,
+            widget.resolution,
             widget.framerate,
             widget.detectionMode,
             widget.position,

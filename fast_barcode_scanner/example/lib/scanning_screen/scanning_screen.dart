@@ -65,16 +65,16 @@ class _ScanningScreenState extends State<ScanningScreen> {
       body: ScannerCamera(
         resolution: Resolution.hd720,
         framerate: Framerate.fps30,
-        detectionMode: DetectionMode.pauseVideo,
+        detectionMode: DetectionMode.pauseDetection,
         position: CameraPosition.back,
-        scanMode: ScanMode.barcode,
-        barcodeTypes: const [
-          BarcodeType.dataMatrix,
-          BarcodeType.code128,
-        ],
-        imageInversion: ImageInversion.alternateFrameInversion,
-        onScan: (code) {
-          history.add(code);
+        scanMode: ScanMode.textRecognition,
+        textRecognitionTypes: const [TextRecognitionType.peruMask],
+        imageInversion: ImageInversion.none,
+        onScan: (codes) {
+          codes.forEach((code) {
+            debugPrint('============ Code: $code ${code.value}');
+            history.add(code);
+          });
         },
         children: const [
           MaterialPreviewOverlay(),

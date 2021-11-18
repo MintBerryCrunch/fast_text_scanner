@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fast_barcode_scanner_platform_interface/src/types/image_source.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'fast_barcode_scanner_platform_interface.dart';
@@ -19,7 +20,7 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
   final Stream<dynamic> _detectionEventStream =
       _detectionEvents.receiveBroadcastStream();
   StreamSubscription<dynamic>? _barcodeEventStreamSubscription;
-  void Function(ScanResult)? _onDetectHandler;
+  void Function(List<ScanResult>)? _onDetectHandler;
 
   @override
   Future<PreviewConfiguration> init(
@@ -49,7 +50,7 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
   }
 
   @override
-  void setOnDetectHandler(void Function(ScanResult) handler) async {
+  void setOnDetectHandler(void Function(List<ScanResult>) handler) async {
     _onDetectHandler = handler;
     _barcodeEventStreamSubscription ??=
         _detectionEventStream.listen(_handlePlatformBarcodeEvent);
@@ -123,9 +124,12 @@ class MethodChannelFastBarcodeScanner extends FastBarcodeScannerPlatform {
     // This might fail if the code type is not present in the list of available code types.
     // Barcode init will throw in this case. Ignore this cases and continue as if nothing happened.
     try {
-      final barcode = ScanResult(data);
-      _onDetectHandler?.call(barcode);
+      final entries =
+          (data as List<dynamic>).map((e) => ScanResult(e)).toList();
+      _onDetectHandler?.call(entries);
       // ignore: empty_catches
-    } catch (e) {}
+    } catch (e) {
+      debugPrint("====== Error in handling scan result: $e");
+    }
   }
 }
