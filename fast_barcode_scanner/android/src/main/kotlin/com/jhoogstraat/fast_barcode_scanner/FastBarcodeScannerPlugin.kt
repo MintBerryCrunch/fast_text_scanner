@@ -170,7 +170,7 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
         val camera = Camera(
             activityBinding.activity,
-            pluginBinding.textureRegistry.createSurfaceTexture(),
+            pluginBinding.textureRegistry,
             callArgumentsMapper.parseInitArgs(configuration)
         ) { barcodes ->
             detectionEventSink?.success(callResultMapper.mapBarcodesToScanResult(barcodes))
@@ -187,8 +187,8 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private fun dispose() {
         camera?.also {
             it.stopCamera()
-            it.flutterTextureEntry.release()
             activityBinding?.removeRequestPermissionsResultListener(it)
+            it.dispose()
         }
 
         camera = null

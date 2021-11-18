@@ -25,7 +25,7 @@ import java.util.concurrent.Executors
 
 class Camera(
     val activity: Activity,
-    val flutterTextureEntry: TextureRegistry.SurfaceTextureEntry,
+    private val textureRegistry: TextureRegistry,
     initialConfig: ScannerConfiguration,
     private val listener: (List<Barcode>) -> Unit
 ) : RequestPermissionsResultListener {
@@ -55,6 +55,7 @@ class Camera(
     private var permissionsCompleter: TaskCompletionSource<Unit>? = null
 
     private val callArgumentsMapper = CallArgumentsMapper()
+    private val texture = textureRegistry.createSurfaceTexture()
 
     /* Companion */
     companion object {
@@ -178,7 +179,7 @@ class Camera(
 
         // Setup Surface
         cameraSurfaceProvider = Preview.SurfaceProvider {
-            val surfaceTexture = flutterTextureEntry.surfaceTexture()
+            val surfaceTexture = texture.surfaceTexture()
             surfaceTexture.setDefaultBufferSize(it.resolution.width, it.resolution.height)
             it.provideSurface(Surface(surfaceTexture), cameraExecutor, {})
         }
@@ -256,6 +257,11 @@ class Camera(
         return getPreviewConfiguration()
     }
 
+    fun dispose() {
+        texture.release()
+        cameraExecutor.shutdown()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -283,12 +289,11 @@ class Camera(
         Log.d(TAG, "Analysis resolution: $analysisRes")
 
         return PreviewConfiguration(
-            flutterTextureEntry.id(),
+            texture.id(),
             0,
             previewRes.height,
             previewRes.width,
             analysis = analysisRes.toString()
         )
     }
-
 }
