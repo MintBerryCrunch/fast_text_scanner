@@ -11,7 +11,7 @@ sealed class ScannerException : Exception() {
     class NoInputDeviceForConfig(val configuration: ScannerConfiguration) : ScannerException()
     class Unauthorized : ScannerException()
     class ConfigurationException(val error: Exception) : ScannerException()
-    class InvalidArguments(val args: HashMap<String, Any>) : ScannerException()
+    class InvalidArguments(val args: Map<String, Any>) : ScannerException()
     class InvalidCodeType(val type: String) : ScannerException()
     class LoadingFailed(val error: IOException) : ScannerException()
     class AnalysisFailed(val error: Exception) : ScannerException()

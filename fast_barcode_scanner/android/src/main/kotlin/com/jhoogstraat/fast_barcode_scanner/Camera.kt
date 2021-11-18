@@ -20,14 +20,13 @@ import com.jhoogstraat.fast_barcode_scanner.scanner.MLKitBarcodeScanner
 import com.jhoogstraat.fast_barcode_scanner.types.*
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import io.flutter.view.TextureRegistry
-import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class Camera(
     val activity: Activity,
     val flutterTextureEntry: TextureRegistry.SurfaceTextureEntry,
-    args: HashMap<String, Any>,
+    initialConfig: ScannerConfiguration,
     private val listener: (List<Barcode>) -> Unit
 ) : RequestPermissionsResultListener {
 
@@ -63,38 +62,17 @@ class Camera(
     }
 
     init {
-        val types = (args["types"] as ArrayList<String>)
-
-        try {
-            scannerConfiguration = ScannerConfiguration(
-                types.mapNotNull { barcodeFormatMap[it] }
-                    .toIntArray(),
-                DetectionMode.valueOf(args["mode"] as String),
-                Resolution.valueOf(args["res"] as String),
-                Framerate.valueOf(args["fps"] as String),
-                CameraPosition.valueOf(args["pos"] as String),
-                ImageInversion.valueOf(args["inv"] as String),
-            )
-
-            // Report to the user if any types are not supported
-            if (types.count() != scannerConfiguration.formats.count()) {
-                val unsupportedTypes = types.filter { !barcodeFormatMap.containsKey(it) }
-                Log.d(TAG, "WARNING: Unsupported barcode types selected: $unsupportedTypes")
-            }
-            
-        } catch (e: Exception) {
-            throw ScannerException.InvalidArguments(args)
-        }
+        scannerConfiguration = initialConfig
 
         val options = BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(0, *scannerConfiguration.formats)
+            .setBarcodeFormats(0, *scannerConfiguration.barcodeTypesEncoded)
             .build()
 
         barcodeScanner = MLKitBarcodeScanner(options, scannerConfiguration.inversion, { codes ->
             if (codes.isNotEmpty()) {
-                if (scannerConfiguration.mode == DetectionMode.pauseDetection) {
+                if (scannerConfiguration.detectionMode == DetectionMode.pauseDetection) {
                     stopDetector()
-                } else if (scannerConfiguration.mode == DetectionMode.pauseVideo) {
+                } else if (scannerConfiguration.detectionMode == DetectionMode.pauseVideo) {
                     stopCamera()
                 }
 
@@ -271,11 +249,11 @@ class Camera(
             throw ScannerException.NotInitialized()
 
         try {
-            val formats = if (args.containsKey("types")) (args["types"] as ArrayList<String>).map {
+            val barcodeTypesEncoded = if (args.containsKey("types")) (args["types"] as ArrayList<String>).map {
                 barcodeFormatMap[it] ?: throw ScannerException.InvalidCodeType(it)
-            }.toIntArray() else scannerConfiguration.formats
+            }.toIntArray() else scannerConfiguration.barcodeTypesEncoded
             val detectionMode =
-                if (args.containsKey("mode")) DetectionMode.valueOf(args["mode"] as String) else scannerConfiguration.mode
+                if (args.containsKey("mode")) DetectionMode.valueOf(args["mode"] as String) else scannerConfiguration.detectionMode
             val resolution =
                 if (args.containsKey("res")) Resolution.valueOf(args["res"] as String) else scannerConfiguration.resolution
             val framerate =
@@ -286,8 +264,8 @@ class Camera(
                 if (args.containsKey("inv")) ImageInversion.valueOf(args["inv"] as String) else scannerConfiguration.inversion
 
             scannerConfiguration = scannerConfiguration.copy(
-                formats = formats,
-                mode = detectionMode,
+                barcodeTypesEncoded = barcodeTypesEncoded,
+                detectionMode = detectionMode,
                 resolution = resolution,
                 framerate = framerate,
                 position = position,

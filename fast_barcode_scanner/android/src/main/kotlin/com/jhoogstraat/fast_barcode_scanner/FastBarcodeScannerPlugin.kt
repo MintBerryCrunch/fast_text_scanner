@@ -42,6 +42,8 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private var activityBinding: ActivityPluginBinding? = null
     private var camera: Camera? = null
 
+    private val callArgumentsMapper = CallArgumentsMapper()
+
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         commandChannel = MethodChannel(
             flutterPluginBinding.binaryMessenger,
@@ -177,7 +179,7 @@ class FastBarcodeScannerPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         val camera = Camera(
             activityBinding.activity,
             pluginBinding.textureRegistry.createSurfaceTexture(),
-            configuration
+            callArgumentsMapper.parseInitArgs(configuration)
         ) { barcodes ->
             detectionEventSink?.success(encode(barcodes.first()))
         }

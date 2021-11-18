@@ -1,55 +1,46 @@
 package com.jhoogstraat.fast_barcode_scanner.types
 
-import android.util.Size
 import com.google.mlkit.vision.barcode.Barcode
 
-data class ScannerConfiguration(val formats: IntArray, val mode: DetectionMode, val resolution: Resolution,
-                                val framerate: Framerate, val position: CameraPosition, val inversion: ImageInversion)
+data class ScannerConfiguration(
+    val detectionMode: DetectionMode,
+    val resolution: Resolution,
+    val framerate: Framerate,
+    val position: CameraPosition,
+    val scanMode: ScanMode,
+    val barcodeTypesEncoded: IntArray,
+    val textRecognitionTypes: List<TextRecognitionType>,
+    val inversion: ImageInversion,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-enum class Framerate {
-    fps30, fps60, fps120, fps240;
+        other as ScannerConfiguration
 
-    fun intValue() : Int = when(this) {
-        fps30 -> 30
-        fps60 -> 60
-        fps120 -> 120
-        fps240 -> 240
+        if (detectionMode != other.detectionMode) return false
+        if (resolution != other.resolution) return false
+        if (framerate != other.framerate) return false
+        if (position != other.position) return false
+        if (scanMode != other.scanMode) return false
+        if (!barcodeTypesEncoded.contentEquals(other.barcodeTypesEncoded)) return false
+        if (textRecognitionTypes != other.textRecognitionTypes) return false
+        if (inversion != other.inversion) return false
+
+        return true
     }
 
-    fun duration() : Long = 1 / intValue().toLong()
-}
-
-enum class Resolution {
-    sd480, hd720, hd1080, hd4k;
-
-    private fun width() : Int = when(this) {
-        sd480 -> 640
-        hd720 -> 1280
-        hd1080 -> 1920
-        hd4k -> 3840
+    override fun hashCode(): Int {
+        var result = detectionMode.hashCode()
+        result = 31 * result + resolution.hashCode()
+        result = 31 * result + framerate.hashCode()
+        result = 31 * result + position.hashCode()
+        result = 31 * result + scanMode.hashCode()
+        result = 31 * result + barcodeTypesEncoded.contentHashCode()
+        result = 31 * result + textRecognitionTypes.hashCode()
+        result = 31 * result + inversion.hashCode()
+        return result
     }
-
-    private fun height() : Int = when(this) {
-        sd480 -> 480
-        hd720 -> 720
-        hd1080 -> 1080
-        hd4k -> 2160
-    }
-
-    fun landscape() : Size = Size(width(), height())
-    fun portrait() : Size = Size(height(), width())
-}
-
-enum class DetectionMode {
-    pauseDetection, pauseVideo, continuous;
-}
-
-enum class CameraPosition {
-    front, back;
-}
-
-enum class ImageInversion {
-    none, invertAllFrames, alternateFrameInversion;
 }
 
 val barcodeFormatMap = hashMapOf(
