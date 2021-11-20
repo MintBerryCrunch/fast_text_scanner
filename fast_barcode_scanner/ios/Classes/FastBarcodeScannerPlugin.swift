@@ -69,8 +69,7 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             throw ScannerError.invalidArguments(args)
         }
 
-
-        var scanner: ScannerProtocol {
+        var scanner: Scanner {
             if configuration.scanMode == .barcode {
                 return AVFoundationBarcodeScanner { [unowned self] barcode in
                                 self.detectionsSink?(barcode)
@@ -152,7 +151,7 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
             throw ScannerError.minimumTarget
         }
 
-        let visionResultHandler: ScannerProtocol.ResultHandler = { result in
+        let visionResultHandler: Scanner.ResultHandler = { result in
             resultHandler(result)
         }
 

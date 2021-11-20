@@ -2,7 +2,7 @@ import AVFoundation
 import Vision
 
 @available(iOS 11.0, *)
-class VisionBarcodeScanner: NSObject, ScannerProtocol, AVCaptureVideoDataOutputSampleBufferDelegate {
+class VisionBarcodeScanner: NSObject, Scanner, AVCaptureVideoDataOutputSampleBufferDelegate {
     typealias Barcode = VNBarcodeObservation
 
     var resultHandler: ResultHandler

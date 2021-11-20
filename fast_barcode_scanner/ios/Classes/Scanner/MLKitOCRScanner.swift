@@ -2,7 +2,7 @@ import AVFoundation
 import MLKitTextRecognition
 import MLKitVision
 
-class MLKitOCRScanner: NSObject, ScannerProtocol, AVCaptureVideoDataOutputSampleBufferDelegate {
+class MLKitOCRScanner: NSObject, Scanner, AVCaptureVideoDataOutputSampleBufferDelegate {
     var resultHandler: ResultHandler
     var onDetection: (() -> Void)?
 
@@ -62,17 +62,30 @@ class MLKitOCRScanner: NSObject, ScannerProtocol, AVCaptureVideoDataOutputSample
                 // Error handling
                 return
             }
-            print(result.text)
             let results = result.text.components(separatedBy: "\n")
             for item in results {
-                if let peru = OCRValidationService(ocr: item)?.peruMask() {
-                    self?.resultHandler(["textPeru", peru])
+                if self?._symbologies.contains("peruMask") ?? false {
+                    self?.check(peru: item)
                 }
 
-                if let regular = OCRValidationService(ocr: item)?.validate() {
-                    self?.resultHandler(["textRegular", regular])
+                if self?._symbologies.contains("regularMask") ?? false {
+                    self?.check(regular: item)
                 }
             }
+        }
+    }
+
+    private func check(peru: String) {
+        if let peru = OCRValidationService(ocr: peru)?.peruMask() {
+            resultHandler([[peru, nil, nil, "peruMask"]])
+            onDetection?()
+        }
+    }
+
+    private func check(regular: String) {
+        if let regular = OCRValidationService(ocr: regular)?.validate() {
+            resultHandler([[regular, nil, nil, "regularMask"]])
+            onDetection?()
         }
     }
 }

@@ -7,13 +7,15 @@ struct ScannerConfiguration {
          framerate: Framerate,
          resolution: Resolution,
          mode: DetectionMode,
-         codes: [String],
+         barcodeTypes: [String],
+         textRecognitionTypes: [String],
          scanMode: ScanMode) {
         self.position = position
         self.framerate = framerate
         self.resolution = resolution
         self.detectionMode = mode
-        self.codes = codes
+        self.barcodeTypes = barcodeTypes
+        self.textRecognitionTypes = textRecognitionTypes
         self.scanMode = scanMode
     }
 
@@ -24,7 +26,8 @@ struct ScannerConfiguration {
             let resolution = Resolution(rawValue: dict["res"] as? String ?? ""),
             let framerate = Framerate(rawValue: dict["fps"] as? String ?? ""),
             let detectionMode = DetectionMode(rawValue: dict["mode"] as? String ?? ""),
-            let codes = dict["types"] as? [String],
+            let barcodeTypes = dict["barcodeTypes"] as? [String],
+            let textRecognitionTypes = dict["textRecognitionTypes"] as? [String],
             let scanMode = ScanMode(rawValue: dict["scanMode"] as? String ?? "")
             else {
                 return nil
@@ -34,7 +37,8 @@ struct ScannerConfiguration {
                   framerate: framerate,
                   resolution: resolution,
                   mode: detectionMode,
-                  codes: codes,
+                  barcodeTypes: barcodeTypes,
+                  textRecognitionTypes: textRecognitionTypes,
                   scanMode: scanMode
         )
     }
@@ -43,7 +47,8 @@ struct ScannerConfiguration {
     let framerate: Framerate
     let resolution: Resolution
     let detectionMode: DetectionMode
-    let codes: [String]
+    let barcodeTypes: [String]
+    let textRecognitionTypes: [String]
     let scanMode: ScanMode
 
     func copy(with args: Any?) -> ScannerConfiguration? {
@@ -54,7 +59,8 @@ struct ScannerConfiguration {
             framerate: Framerate(rawValue: dict["fps"] as? String ?? "") ?? framerate,
             resolution: Resolution(rawValue: dict["res"] as? String ?? "") ?? resolution,
             mode: DetectionMode(rawValue: dict["mode"] as? String ?? "") ?? detectionMode,
-            codes: dict["types"] as? [String] ?? codes,
+            barcodeTypes: dict["types"] as? [String] ?? barcodeTypes,
+            textRecognitionTypes: dict["textRecognitionTypes"] as? [String] ?? textRecognitionTypes,
             scanMode: ScanMode(rawValue: dict["scanMode"] as? String ?? "") ?? scanMode
         )
     }

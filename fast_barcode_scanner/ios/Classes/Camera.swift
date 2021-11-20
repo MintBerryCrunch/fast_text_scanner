@@ -8,14 +8,14 @@ class Camera: NSObject {
     private let sessionQueue = DispatchQueue(label: "fast_barcode_scanner.session.serial")
     private var deviceInput: AVCaptureDeviceInput!
     private var captureDevice: AVCaptureDevice { deviceInput.device }
-    private var scanner: ScannerProtocol
+    private var scanner: Scanner
 
     private(set) var configuration: ScannerConfiguration
     private(set) var previewConfiguration: PreviewConfiguration!
     private var torchState = false
     private var isSessionRunning = false
 
-    init(configuration: ScannerConfiguration, scanner: ScannerProtocol) throws {
+    init(configuration: ScannerConfiguration, scanner: Scanner) throws {
         self.scanner = scanner
         self.configuration = configuration
         super.init()
@@ -82,7 +82,12 @@ class Camera: NSObject {
 
         // Attach scanner to the session
         self.scanner.session = session
-        self.scanner.symbologies = configuration.codes
+        if configuration.scanMode == .barcode {
+            self.scanner.symbologies = configuration.barcodeTypes
+        } else {
+            self.scanner.symbologies = configuration.textRecognitionTypes
+        }
+
         self.scanner.onDetection = { [unowned self] in
             switch configuration.detectionMode {
             case .pauseDetection:

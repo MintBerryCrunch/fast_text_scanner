@@ -1,6 +1,6 @@
 import AVFoundation
 
-protocol ScannerProtocol {
+protocol Scanner {
     typealias ResultHandler = (Any?) -> Void
 
     var session: AVCaptureSession? { get set }
