@@ -1,7 +1,6 @@
+import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart';
 import 'package:fast_barcode_scanner_platform_interface/src/types/barcode_value_type.dart';
 import 'package:flutter/foundation.dart';
-
-import '../../fast_barcode_scanner_platform_interface.dart';
 
 /// Describes a ScanResult.
 ///

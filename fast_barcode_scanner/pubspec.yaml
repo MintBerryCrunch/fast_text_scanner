@@ -12,7 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   fast_barcode_scanner_platform_interface:
-    path: ../fast_barcode_scanner_platform_interface
+    git:
+      url: git@github.com:MintBerryCrunch/fast_barcode_scanner.git
+      ref: RF-2675
+      path: fast_barcode_scanner_platform_interface
 
 dev_dependencies:
   flutter_test:
