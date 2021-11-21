@@ -20,7 +20,7 @@ class CallResultMapper {
         return listOf(
             barcode.rawValue,
             barcodeStringMap[barcode.format],
-            barcode.valueType,
+            null,
             null
         )
     }
