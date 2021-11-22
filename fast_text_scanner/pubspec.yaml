@@ -1,0 +1,33 @@
+name: fast_text_scanner
+description: A fast barcode scanner using MLKit on Android and AVFoundation on iOS.
+version: 2.0.1
+homepage: https://github.com/redflag/fast_text_scanner
+repository: https://github.com/redflag/fast_text_scanner
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  fast_text_scanner_platform_interface:
+    git:
+      url: git@github.com:MintBerryCrunch/fast_text_scanner.git
+      ref: RF-2675
+      path: fast_text_scanner_platform_interface
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.4
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.redflag.fast_text_scanner
+        pluginClass: FastTextScannerPlugin
+      ios:
+        pluginClass: FastTextScannerPlugin

@@ -6,13 +6,13 @@
   "configurations": [
     {
       "name": "Run Example",
-      "cwd": "fast_barcode_scanner/example",
+      "cwd": "fast_text_scanner/example",
       "request": "launch",
       "type": "dart"
     },
     {
       "name": "Run Example (profile mode)",
-      "cwd": "fast_barcode_scanner/example",
+      "cwd": "fast_text_scanner/example",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile"
