@@ -137,10 +137,6 @@ class Camera: NSObject {
         scanner.start()
         session.startRunning()
         isSessionRunning = session.isRunning
-
-        if torchState {
-            try toggleTorch()
-        }
     }
 
     func stop() {
@@ -153,20 +149,33 @@ class Camera: NSObject {
     func toggleTorch() throws -> Bool {
         guard captureDevice.isTorchAvailable else { return false }
 
-        try captureDevice.lockForConfiguration()
-        captureDevice.torchMode = captureDevice.isTorchActive ? .off : .on
-        captureDevice.unlockForConfiguration()
+        do {
+            try captureDevice.lockForConfiguration()
+            captureDevice.torchMode = captureDevice.isTorchActive ? .off : .on
 
+            captureDevice.unlockForConfiguration()
+        } catch {
+            print("Torch could not be used \(error)")
+        }
+        
+        torchState = captureDevice.torchMode == .on
+        
         return captureDevice.torchMode == .on
     }
 
     @discardableResult
     func setTorch(on: Bool) throws -> Bool {
         guard captureDevice.isTorchAvailable else { return false }
-
-        try captureDevice.lockForConfiguration()
-        captureDevice.torchMode = on ? .on : .off
-        captureDevice.unlockForConfiguration()
+        do {
+            try captureDevice.lockForConfiguration()
+            captureDevice.torchMode = on ? .on : .off
+            
+            captureDevice.unlockForConfiguration()
+        } catch {
+            print("Torch could not be used \(error)")
+        }
+        
+        torchState = captureDevice.torchMode == .on
 
         return captureDevice.torchMode == .on
     }

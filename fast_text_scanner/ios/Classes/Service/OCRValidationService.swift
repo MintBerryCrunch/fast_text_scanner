@@ -8,6 +8,18 @@
 
 import Foundation
 
+extension String {
+    func replaceCharactersFromSet(characterSet: CharacterSet, replacementString: String = "") -> String {
+        return components(separatedBy: characterSet).joined(separator: replacementString)
+    }
+    
+    public var countDigits: Int {
+        return  self
+            .components(separatedBy:CharacterSet.decimalDigits.inverted)
+            .joined().count
+    }
+}
+
 class OCRValidationService {
     private let ocrString: String
     
@@ -86,11 +98,10 @@ class OCRValidationService {
     
     func peruMask() -> String? {
         let string = Array(ocrString.uppercased())
-        let digits = CharacterSet.decimalDigits
+        
         if string.count == 11 {
             //Peru: 010IM 123456
             var numberOrMatchesFirstPart = [Bool]()
-            var numberOrMatchesSecondPart = [Bool]()
             
             if string[0] == "0"{
                 numberOrMatchesFirstPart.append(true)
@@ -108,39 +119,34 @@ class OCRValidationService {
                 numberOrMatchesFirstPart.append(true)
             }
             
+            
             let start = ocrString.index(ocrString.startIndex, offsetBy: 5)
             var numericString = String(ocrString.uppercased()[start...])
             
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[5]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[6]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[7]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[8]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[9]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if digits.isSuperset(of: CharacterSet(charactersIn: String(string[10]))){
-                numberOrMatchesSecondPart.append(true)
-            }
-            if numberOrMatchesFirstPart.count > 3 && numberOrMatchesSecondPart.count > 3 {
-                numericString = numericString.replacingOccurrences(of: "Q", with: "0")
-                numericString = numericString.replacingOccurrences(of: "O", with: "0")
-                numericString = numericString.replacingOccurrences(of: "D", with: "0")
-                numericString = numericString.replacingOccurrences(of: "E", with: "0")
-                numericString = numericString.replacingOccurrences(of: "C", with: "0")
-                numericString = numericString.replacingOccurrences(of: "G", with: "0")
-                numericString = numericString.replacingOccurrences(of: "J", with: "1")
-                numericString = numericString.replacingOccurrences(of: "B", with: "6")
-                numericString = numericString.replacingOccurrences(of: "I", with: "1")
-                numericString = numericString.replacingOccurrences(of: "L", with: "1")
-                numericString = numericString.replacingOccurrences(of: "A", with: "4")
+            let numberOrMatchesSecondPart = numericString.countDigits
+            
+            if numberOrMatchesFirstPart.count > 3 && numberOrMatchesSecondPart > 3 {
+                let zeroLike = CharacterSet(charactersIn: "QODCGU")     //0
+                let oneLike = CharacterSet(charactersIn: "JILKV")       //1
+                let twoLike = CharacterSet(charactersIn: "ZRW")         //2
+                let threeLike = CharacterSet(charactersIn: "E")         //3
+                let fourLike = CharacterSet(charactersIn: "AHMN")       //4
+                let fiveLike = CharacterSet(charactersIn: "S")          //5
+                let sixLike = CharacterSet(charactersIn: "")            //6
+                let sevenLike = CharacterSet(charactersIn: "TZ")        //7
+                let eightLike = CharacterSet(charactersIn: "BFPX")      //8
+                let nineLike = CharacterSet(charactersIn: "Y")          //9
+                
+                numericString = numericString.replaceCharactersFromSet(characterSet: zeroLike, replacementString: "0")
+                    .replaceCharactersFromSet(characterSet: oneLike, replacementString: "1")
+                    .replaceCharactersFromSet(characterSet: twoLike, replacementString: "2")
+                    .replaceCharactersFromSet(characterSet: threeLike, replacementString: "3")
+                    .replaceCharactersFromSet(characterSet: fourLike, replacementString: "4")
+                    .replaceCharactersFromSet(characterSet: fiveLike, replacementString: "5")
+                    .replaceCharactersFromSet(characterSet: sixLike, replacementString: "6")
+                    .replaceCharactersFromSet(characterSet: sevenLike, replacementString: "7")
+                    .replaceCharactersFromSet(characterSet: eightLike, replacementString: "8")
+                    .replaceCharactersFromSet(characterSet: nineLike, replacementString: "9")
                 return "010IM\(numericString)"
             }
             
