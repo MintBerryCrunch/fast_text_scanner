@@ -133,7 +133,7 @@ class OCRValidationService {
                 let fourLike = CharacterSet(charactersIn: "AHMN")       //4
                 let fiveLike = CharacterSet(charactersIn: "S")          //5
                 let sixLike = CharacterSet(charactersIn: "")            //6
-                let sevenLike = CharacterSet(charactersIn: "TZ")        //7
+                let sevenLike = CharacterSet(charactersIn: "T")        //7
                 let eightLike = CharacterSet(charactersIn: "BFPX")      //8
                 let nineLike = CharacterSet(charactersIn: "Y")          //9
                 
