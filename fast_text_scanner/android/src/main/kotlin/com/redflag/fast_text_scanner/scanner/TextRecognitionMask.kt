@@ -11,10 +11,16 @@ class TextRecognitionMask(
     }
 
     private val invalidCharactersRegexp = Regex("[^A-Za-z0-9]+")
-    private val zeroShapedUppercaseLetters = Regex("[QODECG]")
-    private val oneShapedUppercaseLetters = Regex("[JIL]")
-    private val fourShapedUppercaseLetters = Regex("[A]")
-    private val sixShapedUppercaseLetters = Regex("[B]")
+    private val zeroShapedUppercaseLetters = Regex("[QODCGU]")
+    private val oneShapedUppercaseLetters = Regex("[JILKV]")
+    private val twoShapedUppercaseLetters = Regex("[ZRW]")
+    private val threeShapedUppercaseLetters = Regex("[E]")
+    private val fourShapedUppercaseLetters = Regex("[AHMN]")
+    private val fiveShapedUppercaseLetters = Regex("[S]")
+    // private val sixShapedUppercaseLetters = Regex("[]") 
+    private val sevenShapedUppercaseLetters = Regex("[T]")
+    private val eightShapedUppercaseLetters = Regex("[BFPX]")
+    private val nineShapedUppercaseLetters = Regex("[Y]")
 
     private val validNumberLength = 11
     private val validPrefix = "010IM"
@@ -51,8 +57,14 @@ class TextRecognitionMask(
         val correctedSequentialPart = sequentialPart
             .replace(zeroShapedUppercaseLetters, "0")
             .replace(oneShapedUppercaseLetters, "1")
+            .replace(twoShapedUppercaseLetters, "2")
+            .replace(threeShapedUppercaseLetters, "3")
             .replace(fourShapedUppercaseLetters, "4")
-            .replace(sixShapedUppercaseLetters, "6")
+            .replace(fiveShapedUppercaseLetters, "5")
+            // .replace(sixShapedUppercaseLetters, "6")
+            .replace(sevenShapedUppercaseLetters, "7")
+            .replace(eightShapedUppercaseLetters, "8")
+            .replace(nineShapedUppercaseLetters, "9")
 
         return listOf("$validPrefix$correctedSequentialPart")
     }
