@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'GoogleMLKit/TextRecognition'
-  s.platform = :ios, '11.0'
+  s.platform = :ios, '10.0'
   s.static_framework = true 
 
   # Flutter.framework does not contain a i386 slice.
